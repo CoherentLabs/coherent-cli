@@ -28,14 +28,30 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
+* [`coherent-cli create`](#coherent-cli-create)
 * [`coherent-cli create-mock-model`](#coherent-cli-create-mock-model)
-* [`coherent-cli create-preact`](#coherent-cli-create-preact)
-* [`coherent-cli create-react`](#coherent-cli-create-react)
-* [`coherent-cli create-vanilla`](#coherent-cli-create-vanilla)
 * [`coherent-cli help [COMMAND]`](#coherent-cli-help-command)
 * [`coherent-cli install-component`](#coherent-cli-install-component)
 * [`coherent-cli lint`](#coherent-cli-lint)
 * [`coherent-cli player`](#coherent-cli-player)
+
+## `coherent-cli create`
+
+Describe the command here
+
+```
+USAGE
+  $ coherent-cli create
+
+OPTIONS
+  -n, --name=name  name to print
+
+DESCRIPTION
+  ...
+  Extra documentation goes here
+```
+
+_See code: [src/commands/create.js](https://github.com/orgs/CoherentLabs/coherent-cli/blob/v0.0.0/src/commands/create.js)_
 
 ## `coherent-cli create-mock-model`
 
@@ -45,69 +61,12 @@ Describe the command here
 USAGE
   $ coherent-cli create-mock-model
 
-OPTIONS
-  -n, --name=name  name to print
-
 DESCRIPTION
   ...
   Extra documentation goes here
 ```
 
 _See code: [src/commands/create-mock-model.js](https://github.com/orgs/CoherentLabs/coherent-cli/blob/v0.0.0/src/commands/create-mock-model.js)_
-
-## `coherent-cli create-preact`
-
-Describe the command here
-
-```
-USAGE
-  $ coherent-cli create-preact
-
-OPTIONS
-  -n, --name=name  name to print
-
-DESCRIPTION
-  ...
-  Extra documentation goes here
-```
-
-_See code: [src/commands/create-preact.js](https://github.com/orgs/CoherentLabs/coherent-cli/blob/v0.0.0/src/commands/create-preact.js)_
-
-## `coherent-cli create-react`
-
-Describe the command here
-
-```
-USAGE
-  $ coherent-cli create-react
-
-OPTIONS
-  -n, --name=name  name to print
-
-DESCRIPTION
-  ...
-  Extra documentation goes here
-```
-
-_See code: [src/commands/create-react.js](https://github.com/orgs/CoherentLabs/coherent-cli/blob/v0.0.0/src/commands/create-react.js)_
-
-## `coherent-cli create-vanilla`
-
-Creates 
-
-```
-USAGE
-  $ coherent-cli create-vanilla
-
-OPTIONS
-  -d, --default=default  set up a default vanilla js project
-
-DESCRIPTION
-  ...
-  Extra documentation goes here
-```
-
-_See code: [src/commands/create-vanilla.js](https://github.com/orgs/CoherentLabs/coherent-cli/blob/v0.0.0/src/commands/create-vanilla.js)_
 
 ## `coherent-cli help [COMMAND]`
 
@@ -134,9 +93,6 @@ Describe the command here
 USAGE
   $ coherent-cli install-component
 
-OPTIONS
-  -n, --name=name  name to print
-
 DESCRIPTION
   ...
   Extra documentation goes here
@@ -152,9 +108,6 @@ Describe the command here
 USAGE
   $ coherent-cli lint
 
-OPTIONS
-  -n, --name=name  name to print
-
 DESCRIPTION
   ...
   Extra documentation goes here
@@ -169,9 +122,6 @@ Describe the command here
 ```
 USAGE
   $ coherent-cli player
-
-OPTIONS
-  -n, --name=name  name to print
 
 DESCRIPTION
   ...
