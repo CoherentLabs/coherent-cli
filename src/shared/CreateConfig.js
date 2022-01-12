@@ -23,6 +23,13 @@ class CreateConfig {
             if (configValid) {
                 configValid.name = this.config.name;
                 this.config = configValid;
+                if (this.config.cohtmlUse) {
+                    const isPackagePathCorrect = utils.checkPathCorrect(this.config.packagePath);
+
+                    if (!isPackagePathCorrect) {
+                        this.config.packagePath = await prompt.askPath();
+                    }
+                }
                 this.saveConfig();
             }
             return;
@@ -31,11 +38,7 @@ class CreateConfig {
         this.config.cohtmlUse = await prompt.confirm('Are you creating a new Gameface/Prysm project?');
 
         if (this.config.cohtmlUse) {
-            const pathToPackage = await prompt.askPath();
-            const { cohtml, player } = await utils.CohtmlAndPlayerPaths(pathToPackage);
-
-            this.config.cohtml = cohtml;
-            this.config.player = player;
+            this.config.packagePath = await prompt.askPath();
         }
 
         if (this.isDefault) {
@@ -48,25 +51,30 @@ class CreateConfig {
             this.config.type = await prompt.askSingleChoice('What type of project do you want to set up?', TYPES);
         }
 
-        const baseChoices = [CHOICES.addFilesTo, CHOICES.addComponents, CHOICES.addTypeScript];
+        const baseChoices = [CHOICES.addComponents, CHOICES.addTypeScript];
 
-        if (this.config.cohtmlUse) baseChoices.push(CHOICES.includeCohtml, CHOICES.addLinters);
+        if (this.config.cohtmlUse) baseChoices.push(CHOICES.includeCohtml);
 
-        if (this.config.type === 'vanilla') baseChoices.push(CHOICES.useBundler);
+        if (this.config.type === 'no-framework') baseChoices.push(CHOICES.useBundler);
 
-        if (this.config.type === 'react') baseChoices.push(CHOICES.addRedux, CHOICES.addRouter, CHOICES.usePreprocessor, CHOICES.useCompiler);
+        if (this.config.type === 'react') baseChoices.push(CHOICES.addRedux, CHOICES.addRouter, CHOICES.usePreprocessor);
 
         const choices = await prompt.askMultipleChoice('Project configurations', baseChoices);
 
-        if (this.config.type !== 'vanilla') choices.push(CHOICES.useBundler.name);
+        if (this.config.type !== 'no-framework') choices.push(CHOICES.useBundler.name);
+
+        if (choices.includes(CHOICES.addTypeScript.name)) choices.push(CHOICES.useBundler.name);
+
+        this.config.typescript = choices.includes(CHOICES.addTypeScript.name);
+        this.config.cohtmlInclude = choices.includes(CHOICES.includeCohtml.name);
+        this.config.bundler = choices.includes(CHOICES.useBundler.name);
 
         if (REQUIRES_PACKAGE_MANAGER.some((r) => choices.includes(r))) {
             this.config.packageManager = await prompt.askSingleChoice('Choose your package manager', PACKAGE_MANAGERS, utils.checkPackageManager);
         }
 
-        if (choices.includes(CHOICES.useBundler.name) && this.config.type === 'vanilla') {
-            advancedChoices = await prompt.askMultipleChoice('Advanced configuration', [CHOICES.usePreprocessor, CHOICES.useCompiler]);
-            this.config.bundler = await prompt.askSingleChoice('Which bundler do you want to use?', BUNDLERS);
+        if (choices.includes(CHOICES.useBundler.name) && this.config.type === 'no-framework') {
+            advancedChoices = await prompt.askMultipleChoice('Advanced configuration', [CHOICES.usePreprocessor]);
         }
 
         if (advancedChoices.includes(CHOICES.usePreprocessor.name)) {

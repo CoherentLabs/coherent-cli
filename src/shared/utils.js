@@ -1,16 +1,20 @@
-const fs = require('fs');
+const fs = require('fs-extra');
 const path = require('path');
 const { cwd, version } = require('process');
 const { execSync } = require('child_process');
 const chalk = require('chalk');
 const glob = require('glob');
 const ora = require('ora');
+const Spinner = require('@slimio/async-cli-spinner');
 const { CONFIG_NAME, CONFIG_EXTENSION, MIN_NODE_VERSION } = require('./config');
 const prompt = require('./prompt');
 const { ltr } = require('semver');
 const boxen = require('boxen');
 const fetch = require('node-fetch');
-const { resolve } = require('path');
+const execa = require('execa');
+const Listr = require('listr');
+const { ncp } = require('ncp');
+const rimraf = require('rimraf');
 
 exports.checkPathCorrect = async (path) => {
     if (!fs.statSync(path).isDirectory()) return chalk.redBright('The provided path is not a directory');
@@ -19,8 +23,6 @@ exports.checkPathCorrect = async (path) => {
     const { player, cohtml } = await getPlayerAndCohtml(path);
     spinner.stop();
     spinner.clear();
-
-    console.log(player, cohtml);
 
     if (!player || !cohtml) {
         return chalk.redBright('The provided directory is not a Gameface/Prysm directory');
@@ -93,19 +95,18 @@ exports.checkFolderOverride = (name) => {
                 return;
             }
 
-            const spinner = ora('Removing files...').start();
+            const spinner = new Spinner().start('Removing files...');
 
-            clearFolderContents(`./${name}`)
-                .then(() => {
-                    spinner.succeed(`${name} files cleared`);
-                    resolve(true);
-                    return;
-                })
-                .catch(() => {
-                    spinner.fail(`Couldn't clear the contents of ${name}. Try to delete them manually`);
-                    resolve(false);
-                    return;
-                });
+            try {
+                await fs.emptyDir(`./${name}`);
+                spinner.succeed(`${name} files cleared`);
+                resolve(true);
+            } catch (error) {
+                spinner.failed(`Couldn't clear the contents of ${name}. Try to delete them manually`);
+                resolve(false);
+            }
+
+            return;
         }
 
         resolve(true);
@@ -114,21 +115,6 @@ exports.checkFolderOverride = (name) => {
 
 const isDirEmpty = (path) => {
     return fs.readdirSync(path).length === 0;
-};
-
-const clearFolderContents = (pathToFolder) => {
-    return new Promise((resolve, reject) => {
-        const files = fs.readdirSync(path.join(cwd(), pathToFolder));
-        for (const file of files) {
-            try {
-                fs.rmSync(path.join(cwd(), `${pathToFolder}/${file}`), { recursive: true });
-            } catch (error) {
-                reject();
-                return;
-            }
-        }
-        resolve();
-    });
 };
 
 exports.checkPackageManager = (packageManager) => {
@@ -166,7 +152,7 @@ exports.convertToKebabCase = (str) => {
 };
 
 exports.checkProjectName = (name) => {
-    return name.match(/[!@#$%^&*()_+=\[\]{};':"\\|,.<>\/?\sA-Z]/g).length > 0;
+    return name.match(/[!@#$%^&*()_+=\[\]{};':"\\|,.<>\/?\sA-Z]/g)?.length > 0;
 };
 
 exports.getCoherentPackages = () => {
@@ -205,5 +191,68 @@ exports.saveConfigToFolder = (folderName, config) => {
         fs.writeFileSync(`./${folderName}/${CONFIG_NAME}${CONFIG_EXTENSION}`, JSON.stringify(config));
     } catch (error) {
         throw new Error(error);
+    }
+};
+
+exports.installPackages = (pkgMgr, targetDirectory) => {
+    return {
+        title: `Installing packages`,
+        enabled: () => true,
+        task: () => {
+            try {
+                execa.sync(pkgMgr, ['i'], {
+                    cwd: targetDirectory
+                });
+            } catch (error) {
+                throw new Error(error);
+            }
+        }
+    };
+};
+
+exports.taskGenerator = (title, task, enabled = () => true) => ({
+    title,
+    enabled,
+    task
+});
+
+exports.readConfig = (name) => {
+    return fs.readFileSync(`./${name}/${CONFIG_NAME}${CONFIG_EXTENSION}`);
+};
+
+exports.createFile = (name, pathToFile, content) => {
+    if (!fs.existsSync(pathToFile)) {
+        fs.mkdirSync(pathToFile, { recursive: true });
+    }
+    try {
+        fs.writeFileSync(`${pathToFile}/${name}`, content);
+    } catch (error) {
+        throw new Error(error);
+    }
+};
+
+exports.copyData = (src, dest) => {
+    return new Promise((resolve, reject) => {
+        ncp(src, dest, (err) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+
+            resolve();
+        });
+    });
+};
+
+exports.getStyleExtension = (preprocessor) => {
+    switch (preprocessor) {
+        case 'scss/sass':
+            return 'scss';
+        case 'less':
+            return 'less';
+        case 'stylus':
+            return 'styl';
+        default:
+            return 'css';
     }
 };

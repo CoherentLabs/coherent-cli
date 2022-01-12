@@ -1,7 +1,11 @@
 const { Command, flags } = require('@oclif/command');
 const chalk = require('chalk');
+const Spinner = require('@slimio/async-cli-spinner');
+const config = require('../shared/config');
 const CreateConfig = require('../shared/CreateConfig');
+const Creator = require('../shared/Creator');
 const { checkFolderExists, checkFolderOverride, checkProjectName, convertToKebabCase } = require('../shared/utils');
+const boxen = require('boxen');
 
 class CreateCommand extends Command {
     static args = [
@@ -35,7 +39,18 @@ class CreateCommand extends Command {
             makeNewFolder: !folderCheck
         });
 
-        createConfig.init();
+        await createConfig.init();
+
+        const boilerplate = new Creator(name);
+
+        const spinner = new Spinner().start('Setting up project. Please wait...');
+
+        try {
+            await boilerplate.create();
+            spinner.succeed('Project set up successfully');
+        } catch (error) {
+            spinner.failed(`Project wasn't set up successfully`)
+        }
     }
 }
 
@@ -48,7 +63,7 @@ CreateCommand.flags = {
     type: flags.string({
         char: 't',
         description: 'choose the type of project to set up',
-        options: ['vanilla', 'typescript', 'react', 'preact']
+        options: config.TYPES
     }),
     default: flags.boolean({
         char: 'd',
