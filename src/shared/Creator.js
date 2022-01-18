@@ -1,4 +1,4 @@
-const { readConfig, taskGenerator, createFile, copyData, getStyleExtension } = require('./utils');
+const { readConfig, taskGenerator, createFile, copyData, getStyleExtension, createFolder } = require('./utils');
 const ejs = require('ejs');
 const Listr = require('listr');
 const { DOCUMENT_NAMES } = require('./config');
@@ -38,13 +38,13 @@ class Creator {
                 createFile(
                     'index.html',
                     `./${this.config.name}/`,
-                    ejs.render(html, { bundler: this.config.bundler, preprocessor: this.config.preProcessor, cohtmlInclude: this.config.cohtmlInclude })
+                    ejs.render(html, { bundler: this.config.bundler, preprocessor: this.config.preProcessor, cohtmlInclude: this.config.cohtmlInclude, type: this.config.type })
                 );
             }),
-            taskGenerator('Creating style.css', () => {
+            taskGenerator('Creating style', () => {
                 createFile(`${DOCUMENT_NAMES.styles}.${getStyleExtension(this.config.preProcessor)}`, `./${this.config.name}/${stylePath}`, '');
             }),
-            taskGenerator('Creating script.js', () => {
+            taskGenerator('Creating script', () => {
                 createFile(`${DOCUMENT_NAMES.script}.${scriptExtenstion}`, `./${this.config.name}/${scriptPath}`, '');
             })
         ];
@@ -57,7 +57,7 @@ class Creator {
             );
 
         if (this.config.packageManager) {
-            const packageJSONManager = new PackageJSONManager(this.config.name, this.config.preProcessor, this.config.typescript, this.config.packageManager, this.config.components);
+            const packageJSONManager = new PackageJSONManager(this.config);
 
             taskList.push(
                 taskGenerator('Creating package.json', () => {
@@ -92,7 +92,84 @@ class Creator {
         return tasks.run();
     }
 
-    createReact() {}
+    createReact() {
+        const { html, config, react, store } = require('./templates');
+
+        const scriptExtenstion = this.config.typescript ? 'tsx' : 'js';
+
+        const packageJSONManager = new PackageJSONManager(this.config);
+
+        const taskList = [
+            taskGenerator('Creating index.html', () => {
+                createFile(
+                    'index.html',
+                    `./${this.config.name}/src`,
+                    ejs.render(html, { bundler: this.config.bundler, preprocessor: this.config.preProcessor, cohtmlInclude: this.config.cohtmlInclude, type: this.config.type })
+                );
+            }),
+            taskGenerator('Creating style', () => {
+                createFile(`${DOCUMENT_NAMES.styles}.${getStyleExtension(this.config.preProcessor)}`, `./${this.config.name}/src`, '');
+            }),
+            taskGenerator('Creating script', () => {
+                createFile(
+                    `${DOCUMENT_NAMES.script}.${scriptExtenstion}`,
+                    `./${this.config.name}/src`,
+                    ejs.render(react, {
+                        cohtmlInclude: this.config.cohtmlInclude,
+                        preprocessor: getStyleExtension(this.config.preProcessor),
+                        router: this.config.router,
+                        store: this.config.store
+                    })
+                );
+            }),
+            taskGenerator('Creating webpack config', () => {
+                createFile(
+                    'webpack.config.js',
+                    `./${this.config.name}/`,
+                    ejs.render(config.webpackReact, { preprocessor: getStyleExtension(this.config.preProcessor), typescript: this.config.typescript })
+                );
+            }),
+            taskGenerator('Creating .babelrc', () => {
+                createFile('.babelrc', `./${this.config.name}/`, ejs.render(config.babel));
+            }),
+            taskGenerator('Creating assets folder', () => {
+                createFolder('assets', `./${this.config.name}`);
+            }),
+            taskGenerator('Creating package.json', () => {
+                createFile('package.json', `./${this.config.name}/`, packageJSONManager.createPackageJSON());
+            }),
+            packageJSONManager.installPackagesTask()
+        ];
+
+        if (this.config.store) {
+            taskList.push(
+                taskGenerator('Creating store', () => {
+                    Object.entries(store).forEach(([key, value]) => {
+                        createFile(`${key}.${scriptExtenstion}`, `./${this.config.name}/src/store`, value);
+                    });
+                })
+            );
+        }
+
+        if (this.config.cohtmlInclude)
+            taskList.push(
+                taskGenerator('Copying cohtml.js', () => {
+                    copyData(`${this.config.packagePath}/Samples/uiresources/library/cohtml.js`, `./${this.config.name}/src/cohtml.js`);
+                })
+            );
+
+        if (this.config.typescript) {
+            taskList.push(
+                taskGenerator('Creating tsconfig.json', () => {
+                    createFile('tsconfig.json', `./${this.config.name}/`, ejs.render(config.tsconfig));
+                })
+            );
+        }
+
+        const tasks = new Listr(taskList);
+
+        return tasks.run();
+    }
 
     createPreact() {}
 }

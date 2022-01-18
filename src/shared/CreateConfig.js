@@ -51,11 +51,11 @@ class CreateConfig {
             this.config.type = await prompt.askSingleChoice('What type of project do you want to set up?', TYPES);
         }
 
-        const baseChoices = [CHOICES.addComponents, CHOICES.addTypeScript];
+        const baseChoices = [CHOICES.addComponents];
 
         if (this.config.cohtmlUse) baseChoices.push(CHOICES.includeCohtml);
 
-        if (this.config.type === 'no-framework') baseChoices.push(CHOICES.useBundler);
+        if (this.config.type === 'no-framework') baseChoices.push(CHOICES.useBundler, CHOICES.addTypeScript);
 
         if (this.config.type === 'react') baseChoices.push(CHOICES.addRedux, CHOICES.addRouter, CHOICES.usePreprocessor);
 
@@ -69,6 +69,11 @@ class CreateConfig {
         this.config.cohtmlInclude = choices.includes(CHOICES.includeCohtml.name);
         this.config.bundler = choices.includes(CHOICES.useBundler.name);
 
+        if (this.config.type === 'react') {
+            this.config.store = choices.includes(CHOICES.addRedux.name);
+            this.config.router = choices.includes(CHOICES.addRouter.name);
+        }
+
         if (REQUIRES_PACKAGE_MANAGER.some((r) => choices.includes(r))) {
             this.config.packageManager = await prompt.askSingleChoice('Choose your package manager', PACKAGE_MANAGERS, utils.checkPackageManager);
         }
@@ -77,7 +82,7 @@ class CreateConfig {
             advancedChoices = await prompt.askMultipleChoice('Advanced configuration', [CHOICES.usePreprocessor]);
         }
 
-        if (advancedChoices.includes(CHOICES.usePreprocessor.name)) {
+        if (advancedChoices.includes(CHOICES.usePreprocessor.name) || choices.includes(CHOICES.usePreprocessor.name)) {
             this.config.preProcessor = await prompt.askSingleChoice('Which CSS preprocessor do you want to use?', PREPROCESSORS);
         }
 

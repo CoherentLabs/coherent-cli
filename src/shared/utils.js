@@ -231,6 +231,10 @@ exports.createFile = (name, pathToFile, content) => {
     }
 };
 
+exports.createFolder = (name, pathToFolder) => {
+    fs.mkdirSync(`${pathToFolder}/${name}`, { recursive: true });
+};
+
 exports.copyData = (src, dest) => {
     return new Promise((resolve, reject) => {
         ncp(src, dest, (err) => {

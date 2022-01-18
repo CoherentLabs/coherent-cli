@@ -11,7 +11,7 @@ module.exports = {
         addLinters: { name: 'Add Linters', requiresPackageManager: true },
         useBundler: { name: 'Use bundler(webpack)', requiresPackageManager: true },
         useCompiler: { name: 'Use JS Compiler(Babel)', requiresPackageManager: true },
-        usePreprocessor: { name: 'Use CSS Preprocessor(SCSS/SASS, LESS', requiresPackageManager: true },
+        usePreprocessor: { name: 'Use CSS Preprocessor(SCSS/SASS, LESS, STYLUS)', requiresPackageManager: true },
         addRedux: { name: 'Add React Redux', requiresPackageManager: true },
         addRouter: { name: 'Add React Router', requiresPackageManager: true },
         addTypeScript: { name: 'Add Typescript', requiresPackageManager: true }
