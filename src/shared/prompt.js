@@ -86,9 +86,10 @@ exports.askMultipleChoice = async (message, choices) => {
  * Asks single choice question
  * @param {String} message
  * @param {Array} choices
+ * @param {Function} validation
  * @returns {String}
  */
-exports.askSingleChoice = async (message, choices) => {
+exports.askSingleChoice = async (message, choices, validation = () => true) => {
     const spinner = ora('Loading options...').start();
     choices = choices.filter(validation);
     spinner.stop();

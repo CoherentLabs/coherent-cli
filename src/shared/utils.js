@@ -23,7 +23,7 @@ exports.checkPathCorrect = async (path) => {
     if (!fs.statSync(path).isDirectory()) return chalk.redBright('The provided path is not a directory');
 
     const spinner = ora('\nChecking directory...').start();
-    const { player, cohtml } = await getPlayerAndCohtml(path);
+    const { player, cohtml } = await this.getPlayerAndCohtml(path);
     spinner.stop();
     spinner.clear();
 

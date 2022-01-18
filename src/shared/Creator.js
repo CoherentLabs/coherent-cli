@@ -46,7 +46,7 @@ class Creator {
             })
         ];
 
-        if (this.config.cohtmlInclude)
+        if (this.config.cohtmlUse)
             taskList.push(
                 taskGenerator('Copying cohtml.js', () => {
                     copyData(`${this.config.packagePath}/Samples/uiresources/library/cohtml.js`, `./${this.config.name}/cohtml.js`);
@@ -148,7 +148,7 @@ class Creator {
             );
         }
 
-        if (this.config.cohtmlInclude)
+        if (this.config.cohtmlUse)
             taskList.push(
                 taskGenerator('Copying cohtml.js', () => {
                     copyData(`${this.config.packagePath}/Samples/uiresources/library/cohtml.js`, `./${this.config.name}/src/cohtml.js`);
