@@ -17,9 +17,15 @@ module.exports = {
         addTypeScript: { name: 'Add Typescript', requiresPackageManager: true }
     },
     DEFAULT_CONFIGS: {
-        noFramework: { cohtmlUse: true },
-        react: { cohtmlUse: true },
-        preact: { cohtmlUse: true }
+        'no-framework': { cohtmlInclude: true },
+        react: {
+            typescript: false,
+            cohtmlInclude: true,
+            bundler: true,
+            store: false,
+            router: false,
+            packageManager: 'npm'
+        }
     },
     TYPES: ['no-framework', 'react'],
     BUNDLERS: ['Webpack', 'Rollup', 'Parcel', 'Vite'],

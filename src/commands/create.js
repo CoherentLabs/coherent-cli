@@ -43,20 +43,20 @@ class CreateCommand extends Command {
 
         const boilerplate = new Creator(name);
 
-        const spinner = new Spinner().start('Setting up project. Please wait...');
+        console.log(boxen('Project is setting up. Please wait...', { padding: 1 }));
 
         try {
             await boilerplate.create();
-            spinner.succeed('Project set up successfully');
+            console.log(`${chalk.greenBright('Project set up successfully')}`);
         } catch (error) {
-            spinner.failed(`Project wasn't set up successfully`)
+            console.log(`${chalk.redBright("Project wasn't set up successfully")}`);
         }
     }
 }
 
 CreateCommand.description = `Create a project
 ...
-Extra documentation goes here
+Create boilerplates quickly. Use coherent-cli create --help for more information
 `;
 
 CreateCommand.flags = {

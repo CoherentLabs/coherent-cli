@@ -9,16 +9,13 @@ class Creator {
         this.config = JSON.parse(readConfig(name));
     }
 
-    async create() {
+    create() {
         switch (this.config.type) {
             case 'no-framework':
                 return this.createNoFramework();
 
             case 'react':
                 return this.createReact();
-
-            case 'preact':
-                return this.createPreact();
 
             default:
                 break;
@@ -170,8 +167,6 @@ class Creator {
 
         return tasks.run();
     }
-
-    createPreact() {}
 }
 
 module.exports = Creator;

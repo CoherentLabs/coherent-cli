@@ -1,7 +1,10 @@
 const utils = require('./utils');
 const prompt = require('./prompt');
-const { CHOICES, REQUIRES_PACKAGE_MANAGER, PACKAGE_MANAGERS, PREPROCESSORS, BUNDLERS, DEFAULT_CONFIGS, TYPES } = require('./config');
+const { CHOICES, REQUIRES_PACKAGE_MANAGER, PACKAGE_MANAGERS, PREPROCESSORS, DEFAULT_CONFIGS, TYPES } = require('./config');
 
+/**
+ * Creates the config based on user choices
+ */
 class CreateConfig {
     constructor({ name, type, configPath, makeNewFolder, isDefault }) {
         this.config = {
@@ -16,15 +19,16 @@ class CreateConfig {
     async init() {
         if (!utils.checkNodeVersion()) return;
 
-        let advancedChoices = [];
+        let advancedChoices = []; //Used for the no-framework type project
 
+        //If we provide an external config from the --config
         if (this.externalConfigPath) {
-            const configValid = await utils.checkValidConfig(this.externalConfigPath);
+            const configValid = await utils.checkValidConfig(this.externalConfigPath); //Checking if it's a valid config
             if (configValid) {
-                configValid.name = this.config.name;
+                configValid.name = this.config.name; //Change the name of the config to match the project we are creating
                 this.config = configValid;
                 if (this.config.cohtmlUse) {
-                    const isPackagePathCorrect = utils.checkPathCorrect(this.config.packagePath);
+                    const isPackagePathCorrect = utils.checkPathCorrect(this.config.packagePath); //We need to check if the Gameface/Prysm package is correct in the provided config
 
                     if (!isPackagePathCorrect) {
                         this.config.packagePath = await prompt.askPath();
@@ -41,12 +45,14 @@ class CreateConfig {
             this.config.packagePath = await prompt.askPath();
         }
 
+        //If we have provided the --default flag we add to the date we already default options based on the project type
         if (this.isDefault) {
-            this.config = Object.assign(this.config, DEFAULT_CONFIGS[this.type]);
+            this.config = Object.assign(this.config, DEFAULT_CONFIGS[this.config.type]);
             this.saveConfig();
             return;
         }
 
+        //If we haven't provided the config type
         if (!this.config.type) {
             this.config.type = await prompt.askSingleChoice('What type of project do you want to set up?', TYPES);
         }
@@ -94,6 +100,9 @@ class CreateConfig {
         this.saveConfig();
     }
 
+    /**
+     * Saves the config to file
+     */
     saveConfig() {
         if (this.makeNewFolder) {
             utils.createProjectFolder(this.config.name);
