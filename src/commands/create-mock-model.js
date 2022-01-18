@@ -1,12 +1,43 @@
 const { Command, flags } = require('@oclif/command');
+const { checkValidConfig, createFile, convertToCamelCase, saveConfigToFolder } = require('../shared/utils');
+const ejs = require('ejs');
+const { model } = require('../shared/templates');
+const { CONFIG_NAME, CONFIG_EXTENSION } = require('../shared/config');
 
 class CreateMockModelCommand extends Command {
-    async run() {}
+    static args = [
+        {
+            name: 'modelName',
+            required: true,
+            description: 'the name of the model you want to create'
+        }
+    ];
+
+    async run() {
+        const { args } = this.parse(CreateMockModelCommand);
+
+        const configPath = `./${CONFIG_NAME}${CONFIG_EXTENSION}`;
+        const configValid = await checkValidConfig(configPath); //Checking if it's a valid config
+
+        if (configValid?.cohtmlUse) {
+            if (!configValid.mockedModels) configValid.mockedModels = [];
+
+            if (configValid.mockedModels.includes(args.modelName)) {
+                console.log(`There is already model called ${args.modelName}. Select another name`);
+                return;
+            }
+
+            const modelName = convertToCamelCase(args.modelName);
+
+            configValid.mockedModels.push(modelName);
+
+            createFile(`model.js`, '.', ejs.render(model, { models: configValid.mockedModels }));
+            saveConfigToFolder('', configValid);
+        }
+    }
 }
 
-CreateMockModelCommand.description = `Describe the command here
-...
-Extra documentation goes here
+CreateMockModelCommand.description = `Creates mock models, to include in your project
 `;
 
 CreateMockModelCommand.flags = {};

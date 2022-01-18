@@ -164,6 +164,18 @@ exports.convertToKebabCase = (str) => {
 };
 
 /**
+ * Converts strings to camel case to be used as model names
+ * @param {String} str
+ * @returns
+ */
+exports.convertToCamelCase = (str) => {
+    return str
+        .replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => {
+            return index !== 0 ? word.toUpperCase() : word; //Matches the first letter in any new word or if preceeded by dash (-)
+        })
+        .replace(/\s+/g, ''); //Remove whitespaces
+};
+/**
  * Checks if project name is kebab case
  * @param {string} name
  * @returns {boolean}

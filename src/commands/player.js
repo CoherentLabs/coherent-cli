@@ -29,7 +29,7 @@ class PlayerCommand extends Command {
         const configValid = await checkValidConfig(configPath); //Checking if it's a valid config
 
         if (configValid) {
-            if (flags.update) {
+            if (flags.update && !flags.config) {
                 configValid.packagePath = await prompt.askPath();
                 saveConfigToFolder('', configValid);
                 if (!args.filePath) return;
@@ -44,9 +44,8 @@ class PlayerCommand extends Command {
     }
 }
 
-PlayerCommand.description = `Describe the command here
-...
-Extra documentation goes here
+PlayerCommand.description = `Opens a file or URL with the Player app
+
 `;
 
 PlayerCommand.flags = {
