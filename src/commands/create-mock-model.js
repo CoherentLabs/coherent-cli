@@ -20,15 +20,16 @@ class CreateMockModelCommand extends Command {
         const configValid = await checkValidConfig(configPath); //Checking if it's a valid config
 
         if (configValid?.cohtmlUse) {
-            if (!configValid.mockedModels) configValid.mockedModels = [];
+            const modelName = convertToCamelCase(args.modelName);
 
-            if (configValid.mockedModels.includes(args.modelName)) {
+            if (!configValid.mockedModels) configValid.mockedModels = [];
+            
+            if (configValid.mockedModels.includes(modelName)) {
                 console.log(`There is already model called ${args.modelName}. Select another name`);
                 return;
             }
-
-            const modelName = convertToCamelCase(args.modelName);
-
+            
+            
             configValid.mockedModels.push(modelName);
 
             createFile(`model.js`, '.', ejs.render(model, { models: configValid.mockedModels }));
