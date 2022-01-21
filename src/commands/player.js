@@ -35,7 +35,14 @@ class PlayerCommand extends Command {
                 if (!args.filePath) return;
             }
 
-            const pathToFile = path.join(cwd(), args.filePath).replaceAll(`\\`, '/');
+            let pathToFile = '';
+
+            try {
+                pathToFile = new URL(args.filePath);
+            } catch (error) {
+                pathToFile = path.join(cwd(), args.filePath).replaceAll(`\\`, '/');
+            }
+
             const { player: playerPath } = await getPlayerAndCohtml(configValid.packagePath);
             execFile(playerPath, ['--player', `--url=${pathToFile}`, '--root'], (err) => {
                 if (err) throw new Error(err);
