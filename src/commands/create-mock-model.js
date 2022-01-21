@@ -1,5 +1,5 @@
 const { Command, flags } = require('@oclif/command');
-const { checkValidConfig, createFile, convertToCamelCase, saveConfigToFolder } = require('../shared/utils');
+const { checkValidConfig, createFile, convertToCamelCase, readModelFile } = require('../shared/utils');
 const ejs = require('ejs');
 const { model } = require('../shared/templates');
 const { CONFIG_NAME, CONFIG_EXTENSION } = require('../shared/config');
@@ -22,18 +22,19 @@ class CreateMockModelCommand extends Command {
         if (configValid?.cohtmlUse) {
             const modelName = convertToCamelCase(args.modelName);
 
-            if (!configValid.mockedModels) configValid.mockedModels = [];
-            
-            if (configValid.mockedModels.includes(modelName)) {
-                console.log(`There is already model called ${args.modelName}. Select another name`);
-                return;
-            }
-            
-            
-            configValid.mockedModels.push(modelName);
+            let fileData = ejs.render(model, { model: modelName });
 
-            createFile(`model.js`, '.', ejs.render(model, { models: configValid.mockedModels }));
-            saveConfigToFolder('', configValid);
+            const modelFile = await readModelFile();
+            if (modelFile) {
+                if (modelFile.match(`engine.createJSModel\\("${modelName}"`)) {
+                    console.log(`There is already model called ${args.modelName}. Select another name`);
+                    return;
+                }
+
+                fileData = modelFile.replace(/(engine.createJSModel)/, `\n    engine.createJSModel("${modelName}", {});\n\n    $1`);
+            }
+
+            createFile(`model.js`, '.', fileData);
         }
     }
 }

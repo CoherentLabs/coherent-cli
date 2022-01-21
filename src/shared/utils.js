@@ -281,6 +281,21 @@ exports.taskGenerator = (title, task, enabled = () => true) => ({
 exports.readConfig = (name) => {
     return fs.readFileSync(`./${name}/${CONFIG_NAME}${CONFIG_EXTENSION}`);
 };
+
+/**
+ * Checks if there is a model.js file and returns it if it exists
+ * @returns {Promise}
+ */
+exports.readModelFile = () => {
+    return new Promise((resolve) => {
+        try {
+            const result = fs.readFileSync('./model.js').toString();
+            resolve(result);
+        } catch (error) {
+            resolve(false);
+        }
+    });
+};
 /**
  * Creates a file with a given content
  * @param {string} name
