@@ -19,6 +19,8 @@ const execa = require('execa');
  * @returns {boolean | string}
  */
 exports.isPathCorrect = (path) => {
+    if (!fs.existsSync(path)) return chalk.redBright("The provided path doesn't exist");
+
     if (!fs.statSync(path).isDirectory()) return chalk.redBright('The provided path is not a directory');
 
     const spinner = ora('\nChecking directory...').start();
@@ -208,6 +210,7 @@ exports.getCoherentPackages = () => {
             })
             .then((components) => {
                 spinner.stop();
+                spinner.clear();
                 resolve(components);
             });
     });

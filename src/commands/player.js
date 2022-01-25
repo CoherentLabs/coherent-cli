@@ -2,6 +2,7 @@ const { Command, flags } = require('@oclif/command');
 const chalk = require('chalk');
 const { execFile } = require('child_process');
 const path = require('path');
+const fs = require('fs-extra');
 const { cwd } = require('process');
 const { CONFIG_NAME, CONFIG_EXTENSION } = require('../shared/config');
 const prompt = require('../shared/prompt');
@@ -35,16 +36,35 @@ class PlayerCommand extends Command {
                 if (!args.filePath) return;
             }
 
-            let pathToFile = '';
+            let file = {
+                type: '',
+                path: ''
+            };
 
             try {
-                pathToFile = new URL(args.filePath);
+                new URL(args.filePath);
+                file = {
+                    type: 'url',
+                    path: args.filePath
+                };
             } catch (error) {
-                pathToFile = path.join(cwd(), args.filePath).replaceAll(`\\`, '/');
+                file = {
+                    type: 'file',
+                    path: path.join(cwd(), args.filePath).replaceAll(`\\`, '/')
+                };
             }
 
             const { player: playerPath } = await getPlayerAndCohtml(configValid.packagePath);
-            execFile(playerPath, ['--player', `--url=${pathToFile}`, '--root'], (err) => {
+
+            if (file.type === 'file') {
+                if (!fs.existsSync(file.path)) this.error('You need to pass a valid file or URL (with the http:// protocol)');
+
+                if (!fs.lstatSync(file.path).isFile()) this.error('You need to pass a file not directory');
+
+                if (path.extname(file.path) !== '.html') this.error('You need to pass a html file to the Player');
+            }
+
+            execFile(playerPath, ['--player', `--url=${file.path}`, '--root'], (err) => {
                 if (err) throw new Error(err);
             });
         }

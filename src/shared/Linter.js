@@ -6,6 +6,7 @@ const path = require('path');
 const { execSync } = require('child_process');
 const chokidar = require('chokidar');
 const execa = require('execa');
+const { CLIError } = require('@oclif/errors');
 
 class Linter {
     constructor(type) {
@@ -13,7 +14,8 @@ class Linter {
     }
 
     lint(file) {
-        if (this.isPackagePathCorrect) { //Failsafe if lint runs before init or init hasn't thrown an error but there is no config
+        if (this.isPackagePathCorrect) {
+            //Failsafe if lint runs before init or init hasn't thrown an error but there is no config
             switch (this.type) {
                 case 'css':
                     this.lintCSS(file);
@@ -57,7 +59,7 @@ class Linter {
     }
 
     /**
-     * 
+     *
      * Building the command flags
      */
     initHTML() {
@@ -100,7 +102,7 @@ class Linter {
             });
             console.log(chalk.greenBright(result));
         } catch (error) {
-            console.error(error.stdout);
+            throw new CLIError(error.stdout);
         }
     }
 
@@ -112,7 +114,7 @@ class Linter {
             });
             console.log(chalk.greenBright(result));
         } catch (error) {
-            console.error(error.stdout);
+            throw new CLIError(error.stdout);
         }
     }
 

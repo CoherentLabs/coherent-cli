@@ -36,8 +36,10 @@
     "@oclif/dev-cli": "^1.26.0",
     "@oclif/test": "^1.2.8",
     "chai": "^4.3.4",
+    "concat-stream": "^2.0.0",
     "globby": "^10.0.2",
-    "mocha": "^5.2.0",
+    "inquirer-test": "^2.0.1",
+    "mocha": "^9.1.4",
     "nyc": "^14.1.1",
     "rimraf": "^3.0.2"
   },
@@ -63,9 +65,8 @@
   "repository": "https://github.com/orgs/CoherentLabs/coherent-cli",
   "scripts": {
     "postpack": "rimraf oclif.manifest.json",
-    "posttest": "eslint .",
     "prepack": "oclif-dev manifest && oclif-dev readme",
-    "test": "nyc mocha --forbid-only \"test/**/*.test.js\"",
+    "test": "node ./test/checkPath.js && nyc -s mocha --forbid-only \"test/**/**.test.js\" --timeout 20000",
     "version": "oclif-dev readme && git add README.md"
   }
 }

@@ -67,7 +67,7 @@ exports.askPath = async () => {
  * Asks a multiple choice question
  * @param {string} message
  * @param {Object[]} choices
- * @returns {Array}
+ * @returns {Promise}
  */
 exports.askMultipleChoice = async (message, choices) => {
     const { selection } = await inquirer.prompt([
