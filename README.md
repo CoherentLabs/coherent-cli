@@ -1,5 +1,4 @@
-coherent-cli
-============
+# coherent-cli
 
 A command line interface for developing Coherent Gameface and Prysm projects
 
@@ -9,124 +8,210 @@ A command line interface for developing Coherent Gameface and Prysm projects
 [![License](https://img.shields.io/npm/l/coherent-cli.svg)](https://github.com/https://github.com/orgs/CoherentLabs/coherent-cli/blob/master/package.json)
 
 <!-- toc -->
-* [Usage](#usage)
-* [Commands](#commands)
+
+- [coherent-cli](#coherent-cli)
+- [Installation](#installation)
+- [Commands](#commands)
+  - [Available commands](#available-commands)
+  - [coherent-cli create](#coherent-cli-create)
+    - [Usage](#usage)
+    - [Options](#options)
+      - [`--type`](#--type)
+      - [`--default`](#--default)
+      - [`--config`](#--config)
+  - [coherent-cli create-mock-model](#coherent-cli-create-mock-model)
+    - [Usage](#usage-1)
+  - [coherent-cli lint](#coherent-cli-lint)
+    - [Usage](#usage-2)
+    - [Options](#options-1)
+      - [`--watch`](#--watch)
+      - [`--fileName`](#--filename)
+  - [coherent-cli player](#coherent-cli-player)
+    - [Usage](#usage-3)
+    - [Options](#options-2)
+      - [`--update`](#--update)
 <!-- tocstop -->
-# Usage
-<!-- usage -->
+
+# Installation
+
 ```sh-session
-$ npm install -g coherent-cli
-$ coherent-cli COMMAND
-running command...
-$ coherent-cli (-v|--version|version)
-coherent-cli/0.0.0 win32-x64 node-v12.19.0
-$ coherent-cli --help [COMMAND]
-USAGE
-  $ coherent-cli COMMAND
-...
+npm install -g coherent-cli
 ```
-<!-- usagestop -->
+
+Or you can use:
+
+```
+npx coherent-cli <COMMAND>
+```
+
 # Commands
+
 <!-- commands -->
-* [`coherent-cli create`](#coherent-cli-create)
-* [`coherent-cli create-mock-model`](#coherent-cli-create-mock-model)
-* [`coherent-cli help [COMMAND]`](#coherent-cli-help-command)
-* [`coherent-cli install-component`](#coherent-cli-install-component)
-* [`coherent-cli lint`](#coherent-cli-lint)
-* [`coherent-cli player`](#coherent-cli-player)
 
-## `coherent-cli create`
-
-Describe the command here
+To view a list of all available commands you can do:
 
 ```
-USAGE
-  $ coherent-cli create
-
-OPTIONS
-  -n, --name=name  name to print
-
-DESCRIPTION
-  ...
-  Extra documentation goes here
+coherent-cli help
 ```
 
-_See code: [src/commands/create.js](https://github.com/orgs/CoherentLabs/coherent-cli/blob/v0.0.0/src/commands/create.js)_
-
-## `coherent-cli create-mock-model`
-
-Describe the command here
-
+To see a list of available options for a command you can do:
 ```
-USAGE
-  $ coherent-cli create-mock-model
-
-DESCRIPTION
-  ...
-  Extra documentation goes here
+coherent-cli <COMMAND> --help
 ```
 
-_See code: [src/commands/create-mock-model.js](https://github.com/orgs/CoherentLabs/coherent-cli/blob/v0.0.0/src/commands/create-mock-model.js)_
+## Available commands
 
-## `coherent-cli help [COMMAND]`
+-   [`coherent-cli create`](#coherent-cli-create)
+-   [`coherent-cli create-mock-model`](#coherent-cli-create-mock-model)
+-   [`coherent-cli lint`](#coherent-cli-lint)
+-   [`coherent-cli player`](#coherent-cli-player)
 
-display help for coherent-cli
+## coherent-cli create
 
-```
-USAGE
-  $ coherent-cli help [COMMAND]
+Creates boilerplates for Vanilla JS and React projects
 
-ARGUMENTS
-  COMMAND  command to show help for
-
-OPTIONS
-  --all  see all commands in CLI
-```
-
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.4/src/commands/help.ts)_
-
-## `coherent-cli install-component`
-
-Describe the command here
+### Usage
 
 ```
-USAGE
-  $ coherent-cli install-component
-
-DESCRIPTION
-  ...
-  Extra documentation goes here
+coherent-cli create <PROJECT_NAME>
 ```
 
-_See code: [src/commands/install-component.js](https://github.com/orgs/CoherentLabs/coherent-cli/blob/v0.0.0/src/commands/install-component.js)_
-
-## `coherent-cli lint`
-
-Describe the command here
+For example:
 
 ```
-USAGE
-  $ coherent-cli lint
-
-DESCRIPTION
-  ...
-  Extra documentation goes here
+coherent-cli create my-app
 ```
 
-_See code: [src/commands/lint.js](https://github.com/orgs/CoherentLabs/coherent-cli/blob/v0.0.0/src/commands/lint.js)_
+When started it will prompt you to choose from a number of options to customize your project. After the command is done it will generate your boilerplate in the `<PROJECT_NAME>` folder.
 
-## `coherent-cli player`
+An important thing to note is that this CLI will create a config file called `coh-config.json` which will be used by all of the other commands in the CLI.
 
-Describe the command here
+### Options
+
+#### `--type`
+
+Chooses the type of project you want to create and shows the appropriate prompts. This flag is optional, not providing it will prompt you to choose the type when creating the project.
+
+Available options are `no-framework` and `react`
 
 ```
-USAGE
-  $ coherent-cli player
-
-DESCRIPTION
-  ...
-  Extra documentation goes here
+coherent-cli create my-app --type react
 ```
 
-_See code: [src/commands/player.js](https://github.com/orgs/CoherentLabs/coherent-cli/blob/v0.0.0/src/commands/player.js)_
+#### `--default`
+
+Creates a default boilerplate. This flag only works in conjuction with the `--type` flag. When you create a default boilerplate you will be prompted to choose if you want this to be a Gameface/Prysm UI project. Afterwards it will skip all of the other prompts.
+
+```
+coherent-cli create my-app --type react --default
+```
+
+#### `--config`
+
+This flag allows you to pass the path to a `coh-config.json` file in order to copy the configuration of a boilerplate. When choosing to use a config all other flags will be ignored.
+
+```
+coherent-cli create my-app --config ./coh-config.json
+```
+
+## coherent-cli create-mock-model
+
+This command allows you to create mock Gameface/Prysm models quickly. For more information about mocking models you can [read here](https://coherent-labs.com/Documentation/cpp-gameface/da/d45/data_binding__j_s.html)
+
+**_Note: This command requires a valid coh-config.json with a correct path to a Gameface/Prysm package_**
+
+### Usage
+
+```
+coherent-cli create-mock-model <MODEL_NAME>
+```
+
+For example
+
+```
+coherent-cli create-mock-model MockedModel
+```
+
+will create a file called `model.js` in the root of your project and add the following code inside
+
+```
+engine.on("Ready", () => {
+    engine.createJSModel("MockedModel", {});
+
+    engine.synchronizeModels();
+});
+```
+
+Which you can then edit to add your model properties
+
+If you use the `create-mock-model` command with a different name, it will add the new model to the `model.js` file
+
+_Warning: If you are creating a new model after the first and have moved the model.js file to another location, a new model.js file will be created at the root of the project_
+
+## coherent-cli lint
+
+Runs the Coherent [CSS](https://coherent-labs.com/Documentation/cpp-gameface/dc/de0/css_linting.html) and [HTML](https://coherent-labs.com/Documentation/cpp-gameface/d0/d25/html_linting.html) linter in your project, without needing to configure them locally
+
+**_Note: This command requires a valid coh-config.json with a correct path to a Gameface/Prysm package_**
+
+### Usage
+
+```
+coherent-cli lint <FILE_TYPE>
+```
+
+You can lint either `css` or `html` file types
+
+For example: 
+```
+coherent-cli lint css
+```
+
+### Options
+#### `--watch`
+
+Watches selected file types for changes and lints them afterwards
+
+```
+coherent-cli lint css --watch
+```
+#### `--fileName`
+
+Allows you to lint a single file instead. This flag doesn't work if it's used alongside the `--watch` flag
+
+```
+coherent-cli lint css --fileName ./style.css
+```
+
+## coherent-cli player
+
+Opens the [Player.exe](https://coherent-labs.com/Documentation/cpp-gameface/d8/db6/player.html) with a file or URL
+
+**_Note: This command requires a valid coh-config.json with a correct path to a Gameface/Prysm package. 
+This command works only on Windows at the moment_**
+
+### Usage
+```
+coherent-cli player <FILE_NAME|URL>
+```
+
+You need to provide a HTML file or valid URL(must start with the http or https protocol) which will be opened by the Player
+
+For example:
+```
+coherent-cli player ./index.html
+
+coherent-cli player http://localhost:8080
+```
+
+### Options
+#### `--update`
+
+This flag allows you to update the package location in the `coh-config.json` file.
+
+```
+coherent-cli player --update
+```
+You can use this flag without providing a file or URL, however if you choose to add them you will first be prompted to change the package location and then they will be opened from the new location
+
 <!-- commandsstop -->
