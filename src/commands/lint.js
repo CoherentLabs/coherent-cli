@@ -2,7 +2,9 @@ const { Command, flags } = require('@oclif/command');
 
 const Linter = require('../shared/Linter');
 const { extname } = require('path');
+const { existsSync } = require('fs-extra');
 const chalk = require('chalk');
+const { checkNodeVersion } = require('../shared/utils');
 
 class LintCommand extends Command {
     static args = [
@@ -17,7 +19,14 @@ class LintCommand extends Command {
     async run() {
         const { flags, args } = this.parse(LintCommand);
 
+        if (!checkNodeVersion()) return;
+
         const linter = new Linter(args.type, flags.config);
+
+        if (flags.fileName && !existsSync(flags.fileName)) {
+            console.log(chalk.redBright("The file you have provided doesn't exist"));
+            return;
+        }
 
         if (flags.fileName && extname(flags.fileName) !== `.${args.type}`) {
             console.log(chalk.redBright("The file you have provided can't be linted by this linter"));

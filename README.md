@@ -30,7 +30,8 @@ A command line interface for developing Coherent Gameface and Prysm projects
     - [Usage](#usage-3)
     - [Options](#options-2)
       - [`--update`](#--update)
-<!-- tocstop -->
+      - [`--config`](#--config-1)
+    <!-- tocstop -->
 
 # Installation
 
@@ -55,6 +56,7 @@ coherent-cli help
 ```
 
 To see a list of available options for a command you can do:
+
 ```
 coherent-cli <COMMAND> --help
 ```
@@ -162,12 +164,14 @@ coherent-cli lint <FILE_TYPE>
 
 You can lint either `css` or `html` file types
 
-For example: 
+For example:
+
 ```
 coherent-cli lint css
 ```
 
 ### Options
+
 #### `--watch`
 
 Watches selected file types for changes and lints them afterwards
@@ -175,6 +179,7 @@ Watches selected file types for changes and lints them afterwards
 ```
 coherent-cli lint css --watch
 ```
+
 #### `--fileName`
 
 Allows you to lint a single file instead. This flag doesn't work if it's used alongside the `--watch` flag
@@ -187,10 +192,11 @@ coherent-cli lint css --fileName ./style.css
 
 Opens the [Player.exe](https://coherent-labs.com/Documentation/cpp-gameface/d8/db6/player.html) with a file or URL
 
-**_Note: This command requires a valid coh-config.json with a correct path to a Gameface/Prysm package. 
+**_Note: This command requires a valid coh-config.json with a correct path to a Gameface/Prysm package.
 This command works only on Windows at the moment_**
 
 ### Usage
+
 ```
 coherent-cli player <FILE_NAME|URL>
 ```
@@ -198,6 +204,7 @@ coherent-cli player <FILE_NAME|URL>
 You need to provide a HTML file or valid URL(must start with the http or https protocol) which will be opened by the Player
 
 For example:
+
 ```
 coherent-cli player ./index.html
 
@@ -205,6 +212,7 @@ coherent-cli player http://localhost:8080
 ```
 
 ### Options
+
 #### `--update`
 
 This flag allows you to update the package location in the `coh-config.json` file.
@@ -212,6 +220,15 @@ This flag allows you to update the package location in the `coh-config.json` fil
 ```
 coherent-cli player --update
 ```
+
 You can use this flag without providing a file or URL, however if you choose to add them you will first be prompted to change the package location and then they will be opened from the new location
+
+#### `--config`
+
+This flag allows you to pass a path to the `coh-config.json` file.
+
+```
+coherent-cli player --config ./coh-config.json ./index.html
+```
 
 <!-- commandsstop -->

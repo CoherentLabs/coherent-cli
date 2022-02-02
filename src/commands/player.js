@@ -7,7 +7,7 @@ const { cwd } = require('process');
 const { CONFIG_NAME, CONFIG_EXTENSION } = require('../shared/config');
 const prompt = require('../shared/prompt');
 
-const { readConfig, checkValidConfig, getPlayerAndCohtml, saveConfigToFolder } = require('../shared/utils');
+const { readConfig, checkValidConfig, getPlayerAndCohtml, saveConfigToFolder, checkNodeVersion } = require('../shared/utils');
 
 class PlayerCommand extends Command {
     static args = [
@@ -20,7 +20,10 @@ class PlayerCommand extends Command {
 
     async run() {
         const { flags, args } = this.parse(PlayerCommand);
-        if (!args.filePath && !flags.update) {
+
+        if (!checkNodeVersion()) return;
+
+        if (!args.filePath && !flags.update && !flags.config) {
             console.log(
                 chalk.yellowBright('If you want to open a file you need to pass the path to it otherwise you can update the package in the config using the --update flag')
             );
@@ -29,8 +32,8 @@ class PlayerCommand extends Command {
         const configPath = flags.config || `./${CONFIG_NAME}${CONFIG_EXTENSION}`;
         const configValid = await checkValidConfig(configPath); //Checking if it's a valid config
 
-        if (configValid) {
-            if (flags.update && !flags.config) {
+        if (configValid?.packagePath) {
+            if (flags.update) {
                 configValid.packagePath = await prompt.askPath();
                 saveConfigToFolder('', configValid);
                 if (!args.filePath) return;
@@ -54,8 +57,6 @@ class PlayerCommand extends Command {
                 };
             }
 
-            const { player: playerPath } = await getPlayerAndCohtml(configValid.packagePath);
-
             if (file.type === 'file') {
                 if (!fs.existsSync(file.path)) this.error('You need to pass a valid file or URL (with the http:// protocol)');
 
@@ -64,10 +65,15 @@ class PlayerCommand extends Command {
                 if (path.extname(file.path) !== '.html') this.error('You need to pass a html file to the Player');
             }
 
+            const { player: playerPath } = await getPlayerAndCohtml(configValid.packagePath);
+
             execFile(playerPath, ['--player', `--url=${file.path}`, '--root'], (err) => {
                 if (err) throw new Error(err);
             });
+            return;
         }
+
+        console.log(chalk.redBright('The coh-config.json file is not created for a Gameface/Prysm project'));
     }
 }
 
@@ -80,7 +86,8 @@ PlayerCommand.flags = {
         description: 'set path to config'
     }),
     update: flags.boolean({
-        description: 'update the package path in the config'
+        description: 'update the package path in the config',
+        exclusive: ['config']
     })
 };
 

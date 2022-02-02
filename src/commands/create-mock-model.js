@@ -1,5 +1,5 @@
 const { Command, flags } = require('@oclif/command');
-const { checkValidConfig, createFile, convertToCamelCase, readModelFile } = require('../shared/utils');
+const { checkValidConfig, createFile, convertToCamelCase, readModelFile, checkNodeVersion } = require('../shared/utils');
 const ejs = require('ejs');
 const { model } = require('../shared/templates');
 const { CONFIG_NAME, CONFIG_EXTENSION } = require('../shared/config');
@@ -15,6 +15,8 @@ class CreateMockModelCommand extends Command {
 
     async run() {
         const { args } = this.parse(CreateMockModelCommand);
+
+        if (!checkNodeVersion()) return;
 
         const configPath = `./${CONFIG_NAME}${CONFIG_EXTENSION}`;
         const configValid = await checkValidConfig(configPath); //Checking if it's a valid config
