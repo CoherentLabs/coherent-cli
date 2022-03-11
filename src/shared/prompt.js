@@ -7,10 +7,10 @@ const ora = require('ora');
 
 /**
  * Prompts an open answer question
- * @param {String} question Question to ask
- * @param {String} defaultValue The default value of the question
- * @param {Function} validation Function to validate the answer
- * @returns {String}
+ * @param {string} question Question to ask
+ * @param {string} defaultValue The default value of the question
+ * @param {function} validation Function to validate the answer
+ * @returns {string}
  */
 exports.askQuestion = async (question, defaultValue = '', validation = (answer) => answer !== '') => {
     const answer = await inquirer.prompt([
@@ -28,9 +28,9 @@ exports.askQuestion = async (question, defaultValue = '', validation = (answer) 
 
 /**
  * Asks a yes or no question
- * @param {String} message
- * @param {Boolean} defaultValue
- * @returns {Boolean}
+ * @param {string} message
+ * @param {boolean} defaultValue
+ * @returns {boolean}
  */
 exports.confirm = async (message, defaultValue = true) => {
     const { confirmation } = await inquirer.prompt([
@@ -47,7 +47,7 @@ exports.confirm = async (message, defaultValue = true) => {
 
 /**
  * Asks for a path to the Gameface/Prysm package
- * @returns {String}
+ * @returns {string}
  */
 exports.askPath = async () => {
     const { resolved } = await inquirer.prompt([
@@ -65,8 +65,8 @@ exports.askPath = async () => {
 
 /**
  * Asks a multiple choice question
- * @param {String} message
- * @param {Array} choices
+ * @param {string} message
+ * @param {Object[]} choices
  * @returns {Array}
  */
 exports.askMultipleChoice = async (message, choices) => {
@@ -84,10 +84,10 @@ exports.askMultipleChoice = async (message, choices) => {
 
 /**
  * Asks single choice question
- * @param {String} message
- * @param {Array} choices
- * @param {Function} validation
- * @returns {String}
+ * @param {string} message
+ * @param {string[]} choices
+ * @param {function} validation
+ * @returns {string}
  */
 exports.askSingleChoice = async (message, choices, validation = () => true) => {
     const spinner = ora('Loading options...').start();

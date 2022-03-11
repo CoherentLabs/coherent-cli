@@ -16,58 +16,58 @@ class CreateConfig {
         this.isDefault = isDefault;
     }
 
+    async externalConfigSetup() {
+        const configValid = await utils.checkValidConfig(this.externalConfigPath); //Checking if it's a valid config
+        if (!configValid) return;
+
+        configValid.name = this.config.name; //Change the name of the config to match the project we are creating
+        this.config = configValid;
+
+        if (!this.config.cohtmlUse) return this.saveConfig();
+
+        const isPackagePathCorrect = utils.checkPathCorrect(this.config.packagePath); //We need to check if the Gameface/Prysm package is correct in the provided config
+
+        if (!isPackagePathCorrect) this.config.packagePath = await prompt.askPath();
+
+        this.saveConfig();
+    }
+
     async init() {
-        if (!utils.checkNodeVersion()) return;
+        if (!utils.isNodeVersionSupported()) return;
 
         let advancedChoices = []; //Used for the no-framework type project
 
         //If we provide an external config from the --config
-        if (this.externalConfigPath) {
-            const configValid = await utils.checkValidConfig(this.externalConfigPath); //Checking if it's a valid config
-            if (configValid) {
-                configValid.name = this.config.name; //Change the name of the config to match the project we are creating
-                this.config = configValid;
-                if (this.config.cohtmlUse) {
-                    const isPackagePathCorrect = utils.checkPathCorrect(this.config.packagePath); //We need to check if the Gameface/Prysm package is correct in the provided config
-
-                    if (!isPackagePathCorrect) {
-                        this.config.packagePath = await prompt.askPath();
-                    }
-                }
-                this.saveConfig();
-            }
-            return;
-        }
+        if (this.externalConfigPath) return this.externalConfigSetup();
 
         this.config.cohtmlUse = await prompt.confirm('Are you creating a new Gameface/Prysm project?');
 
-        if (this.config.cohtmlUse) {
-            this.config.packagePath = await prompt.askPath();
-        }
+        const cohtmlUse = this.config.cohtmlUse;
+
+        if (cohtmlUse) this.config.packagePath = await prompt.askPath();
 
         //If we have provided the --default flag we add to the date we already default options based on the project type
         if (this.isDefault) {
-            this.config = Object.assign(this.config, DEFAULT_CONFIGS[this.config.type]);
-            this.saveConfig();
-            return;
+            this.config = { ...this.config, ...DEFAULT_CONFIGS[this.config.type] };
+            return this.saveConfig();
         }
 
         //If we haven't provided the config type
-        if (!this.config.type) {
-            this.config.type = await prompt.askSingleChoice('What type of project do you want to set up?', TYPES);
-        }
+        if (!this.config.type) this.config.type = await prompt.askSingleChoice('What type of project do you want to set up?', TYPES);
 
         const baseChoices = [CHOICES.addComponents];
 
-        if (this.config.cohtmlUse) baseChoices.push(CHOICES.includeCohtml);
+        const type = this.config.type;
 
-        if (this.config.type === 'no-framework') baseChoices.push(CHOICES.useBundler, CHOICES.addTypeScript);
+        if (cohtmlUse) baseChoices.push(CHOICES.includeCohtml);
 
-        if (this.config.type === 'react') baseChoices.push(CHOICES.addRedux, CHOICES.addRouter, CHOICES.usePreprocessor);
+        if (type === 'no-framework') baseChoices.push(CHOICES.useBundler, CHOICES.addTypeScript);
+
+        if (type === 'react') baseChoices.push(CHOICES.addRedux, CHOICES.addRouter, CHOICES.usePreprocessor);
 
         const choices = await prompt.askMultipleChoice('Project configurations', baseChoices);
 
-        if (this.config.type !== 'no-framework') choices.push(CHOICES.useBundler.name);
+        if (type !== 'no-framework') choices.push(CHOICES.useBundler.name);
 
         if (choices.includes(CHOICES.addTypeScript.name)) choices.push(CHOICES.useBundler.name);
 
@@ -75,7 +75,7 @@ class CreateConfig {
         this.config.cohtmlInclude = choices.includes(CHOICES.includeCohtml.name);
         this.config.bundler = choices.includes(CHOICES.useBundler.name);
 
-        if (this.config.type === 'react') {
+        if (type === 'react') {
             this.config.store = choices.includes(CHOICES.addRedux.name);
             this.config.router = choices.includes(CHOICES.addRouter.name);
         }
@@ -104,9 +104,7 @@ class CreateConfig {
      * Saves the config to file
      */
     saveConfig() {
-        if (this.makeNewFolder) {
-            utils.createProjectFolder(this.config.name);
-        }
+        if (this.makeNewFolder) utils.createProjectFolder(this.config.name);
 
         utils.saveConfigToFolder(this.config.name, this.config);
     }

@@ -33,8 +33,8 @@ module.exports = {
     PACKAGE_MANAGERS: ['npm', 'yarn', 'pnpm'],
     get REQUIRES_PACKAGE_MANAGER() {
         return Object.values(this.CHOICES)
-            .filter((r) => r.requiresPackageManager)
-            .map((r) => r.name);
+            .filter((choice) => choice.requiresPackageManager)
+            .map((choice) => choice.name);
     },
     DOCUMENT_NAMES: {
         styles: 'style',

@@ -1,10 +1,9 @@
 const { Command, flags } = require('@oclif/command');
 const chalk = require('chalk');
-const Spinner = require('@slimio/async-cli-spinner');
 const config = require('../shared/config');
 const CreateConfig = require('../shared/CreateConfig');
 const Creator = require('../shared/Creator');
-const { checkFolderExists, checkFolderOverride, checkProjectName, convertToKebabCase } = require('../shared/utils');
+const { checkFolderOverride, isProjectNameValid, convertToKebabCase, folderExists } = require('../shared/utils');
 const boxen = require('boxen');
 
 class CreateCommand extends Command {
@@ -19,14 +18,14 @@ class CreateCommand extends Command {
     async run() {
         const { flags, args } = this.parse(CreateCommand);
         let name = args.name;
-        const nameCheck = checkProjectName(name);
-        if (nameCheck) {
+        if (isProjectNameValid(name)) {
             name = convertToKebabCase(name);
             console.log(chalk.yellowBright(`${args.name} contains capital letters or special characters that are not permited. We'll convert it to ${name}`));
         }
 
-        const folderCheck = await checkFolderExists(name);
-        if (folderCheck) {
+        const doesFolderExist = folderExists(name);
+
+        if (doesFolderExist) {
             const folderOverride = await checkFolderOverride(name);
             if (!folderOverride) return;
         }
@@ -36,7 +35,7 @@ class CreateCommand extends Command {
             type: flags.type,
             isDefault: flags.default,
             configPath: flags.config,
-            makeNewFolder: !folderCheck
+            makeNewFolder: !doesFolderExist
         });
 
         await createConfig.init();

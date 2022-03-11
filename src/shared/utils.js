@@ -1,6 +1,6 @@
 const fs = require('fs-extra');
 const path = require('path');
-const { version } = require('process');
+const { version, cwd } = require('process');
 const { execSync } = require('child_process');
 const chalk = require('chalk');
 const glob = require('glob');
@@ -83,19 +83,16 @@ exports.checkValidConfig = async (config) => {
 /**
  * Checks if the folder where the boilerplate will be created already exists
  * @param {String} name
- * @returns {Promise}
+ * @returns {Boolean}
  */
-exports.checkFolderExists = (name) => {
-    return new Promise((resolve) => {
-        try {
-            fs.accessSync(`./${name}`, fs.constants.F_OK);
-        } catch (error) {
-            resolve(false);
-            return;
-        }
+exports.folderExists = (name) => {
+    try {
+        fs.accessSync(`./${name}`, fs.constants.F_OK);
+    } catch (error) {
+        return false;
+    }
 
-        resolve(true);
-    });
+    return true;
 };
 
 /**
@@ -160,7 +157,7 @@ exports.checkPackageManager = (packageManager) => {
  * Checks if the user node version is lower than the minimum required to run this CLI
  * @returns {Boolean}
  */
-exports.checkNodeVersion = () => {
+exports.isNodeVersionSupported = () => {
     if (ltr(version, MIN_NODE_VERSION)) {
         console.log(
             boxen(
@@ -194,7 +191,7 @@ exports.convertToKebabCase = (str) => {
  * @param {String} name
  * @returns {Boolean}
  */
-exports.checkProjectName = (name) => {
+exports.isProjectNameValid = (name) => {
     return name.match(/[!@#$%^&*()_+=\[\]{};':"\\|,.<>\/?\sA-Z]/g)?.length > 0;
 };
 
@@ -300,6 +297,8 @@ exports.readConfig = (name) => {
  * @param {String} content
  */
 exports.createFile = (name, pathToFile, content) => {
+    pathToFile = path.resolve(cwd(), pathToFile);
+
     if (!fs.existsSync(pathToFile)) {
         fs.mkdirSync(pathToFile, { recursive: true });
     }
