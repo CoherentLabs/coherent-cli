@@ -1,30 +1,37 @@
 const { DOCUMENT_NAMES } = require('../config');
+const ejs = require('ejs');
 
-module.exports = `
+module.exports = ({ type, preprocessor, bundler, cohtmlInclude }) => {
+    const getStyleTag = () => {
+        if (type !== 'no-framework') return '';
+        return `<link rel="stylesheet" href="./${preprocessor ? 'dist/' : ''}${DOCUMENT_NAMES.styles}.css" />`;
+    };
+
+    const react = type === 'react' ? '<div id="app"></div>' : '';
+
+    const getScriptTags = () => {
+        if (type !== 'no-framework') return '';
+
+        const tags = [];
+
+        if (cohtmlInclude) tags.push('<script src="./cohtml.js"></script>');
+
+        tags.push(`<script src="./${bundler ? 'dist/' : ''}${DOCUMENT_NAMES.script}.js"></script>`);
+
+        return tags.join('\n');
+    };
+
+    return ejs.render(template, { styleTag: getStyleTag(), react, scriptTags: getScriptTags() });
+};
+
+const template = `
 <html>
 <head>
-    <% if (type === 'no-framework') {%>
-        <% if (!preprocessor) {%>
-            <link rel="stylesheet" href="./${DOCUMENT_NAMES.styles}.css" />
-        <% } else { %>
-            <link rel="stylesheet" href="./dist/${DOCUMENT_NAMES.styles}.css" />
-        <% } %>
-    <% } %>
+    <%- styleTag %>
 </head>
 <body>
-    <% if (type === 'react') {%>
-        <div id="app"></div>
-    <% } %>
-    <% if (type === 'no-framework') {%>
-        <% if (cohtmlInclude) { %>
-            <script src="./cohtml.js"></script>
-        <% } %>
-        <% if (!bundler) {%>
-            <script src="./${DOCUMENT_NAMES.script}.js"></script>
-        <% } else { %>
-            <script src="./dist/${DOCUMENT_NAMES.script}.js"></script>
-        <% } %>
-    <% } %>
+    <%- react %>
+    <%- scriptTags %>
 </body>
 </html>
 `;

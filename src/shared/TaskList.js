@@ -21,7 +21,7 @@ class TaskList {
             createFile(
                 'index.html',
                 `./${this.config.name}/${this.config.type !== 'no-framework' ? 'src' : ''}`,
-                ejs.render(html, { bundler: this.config.bundler, preprocessor: this.config.preProcessor, cohtmlInclude: this.config.cohtmlInclude, type: this.config.type })
+                html({ bundler: this.config.bundler, preprocessor: this.config.preProcessor, cohtmlInclude: this.config.cohtmlInclude, type: this.config.type })
             );
     }
 
@@ -42,7 +42,7 @@ class TaskList {
             createFile(
                 `${DOCUMENT_NAMES.script}.${scriptExtension}`,
                 `./${this.config.name}/src`,
-                ejs.render(react, {
+                react({
                     cohtmlInclude: this.config.cohtmlInclude,
                     preprocessor: getStyleExtension(this.config.preProcessor),
                     router: this.config.router,
@@ -72,17 +72,12 @@ class TaskList {
             createFile(
                 'webpack.config.js',
                 `./${this.config.name}/`,
-                ejs.render(config.webpack, { preprocessor: getStyleExtension(this.config.preProcessor), typescript: this.config.typescript })
+                config.webpack({ preprocessor: getStyleExtension(this.config.preProcessor), typescript: this.config.typescript })
             );
     }
 
     createReactWebpack() {
-        return () =>
-            createFile(
-                'webpack.config.js',
-                `./${this.config.name}/`,
-                ejs.render(config.webpackReact, { preprocessor: getStyleExtension(this.config.preProcessor), typescript: this.config.typescript })
-            );
+        return () => createFile('webpack.config.js', `./${this.config.name}/`, config.webpackReact({ preprocessor: getStyleExtension(this.config.preProcessor) }));
     }
 
     createStore(scriptExtension) {

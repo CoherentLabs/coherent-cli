@@ -1,48 +1,44 @@
 const { DOCUMENT_NAMES } = require('../../config');
 
-module.exports = `
+const ejs = require('ejs');
 
-const path = require( 'path' );
+module.exports = ({ preprocessor, typescript }) => {
+    const scriptExtension = typescript ? 'ts' : 'js';
 
-module.exports = {
-    mode: 'production',
-    entry: [
-        './src/<%= typescript ? 'ts' : 'js' %>/${DOCUMENT_NAMES.script}.<%= typescript ? 'ts' : 'js' %>',
-        "<%- preprocessor !== 'css' ? './src/' + preprocessor + '/${DOCUMENT_NAMES.styles}.' + preprocessor : '' %>"
-    ],
-    output: {
-        path: path.resolve( __dirname, 'dist' ),
-        filename: '${DOCUMENT_NAMES.script}.js',
-    },
-    resolve: {
-        extensions: [ <%- typescript ? "'.ts'" : "" %>, '.js' ],
-    },
+    const scriptEntry = `./src/${scriptExtension}/${DOCUMENT_NAMES.script}.${scriptExtension}`;
 
-    module: {
-             rules: [
-                <% if (typescript) {%>
-                 {
-                    test: /\.tsx?/,
-                    use: 'ts-loader',
-                     exclude: /node_modules/,
-                 },
-                <% } %>
+    const preprocessorEntry = preprocessor !== 'css' ? `./src/${preprocessor}/${DOCUMENT_NAMES.styles}.${preprocessor}` : '';
 
-                <% if (preprocessor) { %>
-                    <% if (preprocessor === 'scss') { %>
-                        {
-                            test: /\.s[ac]ss$/i,
-                            use: [
-                                {
-                                    loader: 'file-loader',
-                                    options: { outputPath: './', name: '${DOCUMENT_NAMES.styles}.css' }
-                                },
-                                'sass-loader'
-                            ]
-                        },
-                    <% } %>
-                    <% if (preprocessor === 'less') { %>
-                        {
+    const typescriptExtension = typescript ? '.ts,' : '';
+
+    const typescriptRule = () => {
+        if (typescript) {
+            return `{
+               test: /\.tsx?/,
+               use: 'ts-loader',
+                exclude: /node_modules/,
+            },`;
+        }
+
+        return '';
+    };
+
+    const preprocessorRules = () => {
+        switch (preprocessor) {
+            case 'scss':
+                return `{
+                        test: /\.s[ac]ss$/i,
+                        use: [
+                            {
+                                loader: 'file-loader',
+                                options: { outputPath: './', name: '${DOCUMENT_NAMES.styles}.css' }
+                            },
+                            'sass-loader'
+                        ]
+                    },`;
+
+            case 'less':
+                return `{
                             test: /\.less$/i,
                             use: [
                                 {
@@ -51,10 +47,9 @@ module.exports = {
                                 },
                                 'less-loader'
                             ]
-                        },
-                    <% } %>
-                    <% if (preprocessor === 'styl') { %>
-                        {
+                        },`;
+            case 'styl':
+                return `{
                             test: /\.styl$/,
                             use: [
                                 {
@@ -63,9 +58,37 @@ module.exports = {
                                 },
                                 'stylus-loader'
                             ]
-                        },
-                    <% } %>
-                <% } %>
+                        },`;
+            default:
+                return '';
+        }
+    };
+
+    return ejs.render(template, { scriptEntry, preprocessorEntry, typescriptExtension, typescriptRule: typescriptRule(), preprocessorRules: preprocessorRules() });
+};
+
+const template = `
+
+const path = require( 'path' );
+
+module.exports = {
+    mode: 'production',
+    entry: [
+        '<%- scriptEntry %>',
+        "<%- preprocessorEntry %>"
+    ],
+    output: {
+        path: path.resolve( __dirname, 'dist' ),
+        filename: '${DOCUMENT_NAMES.script}.js',
+    },
+    resolve: {
+        extensions: [ <%- typescriptExtension %> '.js' ],
+    },
+
+    module: {
+             rules: [
+                <%- typescriptRule %>
+                <%- preprocessorRules %>
              ]
          }
 

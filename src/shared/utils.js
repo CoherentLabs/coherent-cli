@@ -12,78 +12,69 @@ const { ltr } = require('semver');
 const boxen = require('boxen');
 const fetch = require('node-fetch');
 const execa = require('execa');
-const { ncp } = require('ncp');
 
 /**
  * Checks if the path provided in the CLI is a Gameface/Prysm package
- * @param {String} path
- * @returns {Boolean | String}
+ * @param {string} path
+ * @returns {boolean | string}
  */
-exports.checkPathCorrect = async (path) => {
+exports.isPathCorrect = (path) => {
     if (!fs.statSync(path).isDirectory()) return chalk.redBright('The provided path is not a directory');
 
     const spinner = ora('\nChecking directory...').start();
-    const { player, cohtml } = await this.getPlayerAndCohtml(path);
+    const { player, cohtml } = this.getPlayerAndCohtml(path);
     spinner.stop();
     spinner.clear();
 
-    if (!player || !cohtml) {
-        return chalk.redBright('The provided directory is not a Gameface/Prysm directory');
-    }
-    return true;
+    if (player && cohtml) return true;
+    return chalk.redBright('The provided directory is not a Gameface/Prysm directory');
 };
 /**
  * Gets the path to the player.exe and cohtml.js if they exist
- * @param {String} path
- * @returns {Promise}
+ * @param {string} path
+ * @returns {Object}
  */
 exports.getPlayerAndCohtml = (path) => {
-    return new Promise((resolve) => {
-        const cohtml = glob.sync(`${path}/**/uiresources/library/cohtml.js`)[0];
-        const player = glob.sync(`${path}/**/Player.exe`)[0];
+    const cohtml = glob.sync(`${path}/**/uiresources/library/cohtml.js`)[0];
+    const player = glob.sync(`${path}/**/Player.exe`)[0];
 
-        resolve({ player, cohtml });
-    });
+    return { player, cohtml };
 };
 
 /**
  * Checks if the config passed from the command line is valid
- * @param {String} config - Path to the config
- * @returns {Promise}
+ * @param {string} config - Path to the config
+ * @returns {JSON | boolean}
  */
-exports.checkValidConfig = async (config) => {
-    return new Promise((resolve) => {
-        if (path.basename(config) !== `${CONFIG_NAME}${CONFIG_EXTENSION}`) {
-            console.log(chalk.redBright(`${config} is not a correct config name`));
-            resolve(false);
-            return;
-        }
-        try {
-            fs.accessSync(config, fs.constants.F_OK);
-        } catch (error) {
-            console.log(chalk.redBright(`No file found at ${config}`));
-            resolve(false);
-            return;
-        }
+exports.isValidConfig = async (config) => {
+    if (path.basename(config) !== `${CONFIG_NAME}${CONFIG_EXTENSION}`) {
+        console.log(chalk.redBright(`${config} is not a correct config name`));
+        return false;
+    }
 
-        const json = JSON.parse(fs.readFileSync(config));
+    try {
+        fs.accessSync(config, fs.constants.F_OK);
+    } catch (error) {
+        console.log(chalk.redBright(`No file found at ${config}`));
+        return false;
+    }
 
-        const isValidConfig = ['name', 'type', 'cohtmlUse'].every((el) => json.hasOwnProperty(el));
+    const properties = ['name', 'type', 'cohtmlUse'];
 
-        if (!isValidConfig) {
-            console.log(chalk.redBright(`${config} is not a valid config`));
-            resolve(false);
-            return;
-        }
+    const json = JSON.parse(fs.readFileSync(config));
 
-        resolve(json);
-    });
+    const isValidConfig = properties.every((el) => json.hasOwnProperty(el));
+
+    if (isValidConfig) return json;
+
+    console.log(chalk.redBright(`${config} is not a valid config`));
+    return false;
 };
 
 /**
  * Checks if the folder where the boilerplate will be created already exists
- * @param {String} name
- * @returns {Boolean}
+ * @param {string} name
+ * @returns {boolean}
  */
 exports.folderExists = (name) => {
     try {
@@ -97,42 +88,35 @@ exports.folderExists = (name) => {
 
 /**
  * Checks if there are files in the folder where you want to try and create the boilerplate and prompts you to delete them
- * @param {String} name
- * @returns {Promise}
+ * @param {string} name
+ * @returns {boolean}
  */
-exports.checkFolderOverride = (name) => {
-    return new Promise(async (resolve) => {
-        if (!isDirEmpty(`./${name}`)) {
-            console.log(chalk.yellow(`A folder called ${name} already exists and contains files`));
+exports.checkFolderOverride = async (name) => {
+    if (isDirEmpty) return true;
 
-            const confirm = await prompt.confirm(`Do you want to delete it's contents and create your project inside? `);
+    console.log(chalk.yellow(`A folder called ${name} already exists and contains files`));
 
-            if (!confirm) {
-                resolve(false);
-                return;
-            }
+    const confirm = await prompt.confirm(`Do you want to delete it's contents and create your project inside? `);
 
-            const spinner = new Spinner().start('Removing files...');
+    if (!confirm) {
+        return false;
+    }
 
-            try {
-                await fs.emptyDir(`./${name}`);
-                spinner.succeed(`${name} files cleared`);
-                resolve(true);
-            } catch (error) {
-                spinner.failed(`Couldn't clear the contents of ${name}. Try to delete them manually`);
-                resolve(false);
-            }
+    const spinner = new Spinner().start('Removing files...');
 
-            return;
-        }
-
-        resolve(true);
-    });
+    try {
+        await fs.emptyDir(`./${name}`);
+        spinner.succeed(`${name} files cleared`);
+        return true;
+    } catch (error) {
+        spinner.failed(`Couldn't clear the contents of ${name}. Try to delete them manually`);
+        return false;
+    }
 };
 /**
  * Checks if given directory is empty
- * @param {String} path
- * @returns {Boolean}
+ * @param {string} path
+ * @returns {boolean}
  */
 const isDirEmpty = (path) => {
     return fs.readdirSync(path).length === 0;
@@ -140,8 +124,8 @@ const isDirEmpty = (path) => {
 
 /**
  * Checks which of the preconfigured package managers are available on the user machine
- * @param {String} packageManager
- * @returns {Boolean}
+ * @param {string} packageManager
+ * @returns {boolean}
  */
 exports.checkPackageManager = (packageManager) => {
     try {
@@ -155,32 +139,25 @@ exports.checkPackageManager = (packageManager) => {
 
 /**
  * Checks if the user node version is lower than the minimum required to run this CLI
- * @returns {Boolean}
+ * @returns {boolean}
  */
 exports.isNodeVersionSupported = () => {
-    if (ltr(version, MIN_NODE_VERSION)) {
-        console.log(
-            boxen(
-                chalk.redBright(
-                    `Your version of NodeJS ${version} is lower than the minimum required version (${MIN_NODE_VERSION}) to run this command. You can download the latest version of NodeJS from https://nodejs.org/en/download/`
-                ),
-                { padding: 1 }
-            )
-        );
-        return false;
-    }
+    if (!ltr(version, MIN_NODE_VERSION)) return true;
 
-    return true;
+    const message = `Your version of NodeJS ${version} is lower than the minimum required version (${MIN_NODE_VERSION}) to run this command. You can download the latest version of NodeJS from https://nodejs.org/en/download/`;
+    console.log(boxen(chalk.redBright(message), { padding: 1 }));
+    return false;
 };
 
 /**
  * Converts strings to kebab case to be used as folder names
- * @param {String} str
- * @returns {Boolean}
+ * @param {string} str
+ * @returns {boolean}
  */
 exports.convertToKebabCase = (str) => {
+    //Checks if the string has numbers, capital leters, spaces etc and converts them to dashes (-)
     return str
-        .match(/[A-Z]{2,}(?=[A-Z][a-z0-9]*|\b)|[A-Z]?[a-z0-9]*|[A-Z]|[0-9]+/g) //Checks if the string has numbers, capital leters, spaces etc and converts them to dashes (-)
+        .match(/[A-Z]{2,}(?=[A-Z][a-z0-9]*|\b)|[A-Z]?[a-z0-9]*|[A-Z]|[0-9]+/g)
         .filter(Boolean)
         .map((x) => x.toLowerCase())
         .join('-');
@@ -188,8 +165,8 @@ exports.convertToKebabCase = (str) => {
 
 /**
  * Checks if project name is kebab case
- * @param {String} name
- * @returns {Boolean}
+ * @param {string} name
+ * @returns {boolean}
  */
 exports.isProjectNameValid = (name) => {
     return name.match(/[!@#$%^&*()_+=\[\]{};':"\\|,.<>\/?\sA-Z]/g)?.length > 0;
@@ -206,12 +183,14 @@ exports.getCoherentPackages = () => {
         fetch('https://api.npms.io/v2/search?q=coherent-gameface', { method: 'Get' })
             .then((res) => res.json())
             .then((data) => {
-                const components = data.results.reduce((acc, el) => {
-                    if (el.package?.keywords?.includes('Component')) {
-                        acc.push({ name: el.package.name });
-                    }
-                    return acc;
-                }, []);
+                const components = data.results
+                    .filter(({ package }) => package.author.name === 'CoherentLabs')
+                    .reduce((acc, el) => {
+                        if (el.package?.keywords?.includes('Component')) {
+                            acc.push({ name: el.package.name });
+                        }
+                        return acc;
+                    }, []);
 
                 return Promise.resolve(components);
             })
@@ -224,7 +203,7 @@ exports.getCoherentPackages = () => {
 
 /**
  * Creates the project folder
- * @param {String} name
+ * @param {string} name
  */
 exports.createProjectFolder = (name) => {
     try {
@@ -236,7 +215,7 @@ exports.createProjectFolder = (name) => {
 
 /**
  * Saves the created coh-config to the project folder
- * @param {String} folderName
+ * @param {string} folderName
  * @param {Object} config
  */
 exports.saveConfigToFolder = (folderName, config) => {
@@ -249,8 +228,8 @@ exports.saveConfigToFolder = (folderName, config) => {
 
 /**
  * Creates a task to install the packages from the package.json
- * @param {String} pkgMgr
- * @param {String} targetDirectory
+ * @param {string} pkgMgr
+ * @param {string} targetDirectory
  * @returns {Object}
  */
 exports.installPackages = (pkgMgr, targetDirectory) => {
@@ -271,9 +250,9 @@ exports.installPackages = (pkgMgr, targetDirectory) => {
 
 /**
  * Creates a task for Listr
- * @param {String} title
- * @param {Function} task
- * @param {Function} enabled
+ * @param {string} title
+ * @param {function} task
+ * @param {function} enabled
  * @returns {Object}
  */
 exports.taskGenerator = (title, task, enabled = () => true) => ({
@@ -284,7 +263,7 @@ exports.taskGenerator = (title, task, enabled = () => true) => ({
 
 /**
  * Reads the config from the project folder
- * @param {String} name
+ * @param {string} name
  * @returns
  */
 exports.readConfig = (name) => {
@@ -292,9 +271,9 @@ exports.readConfig = (name) => {
 };
 /**
  * Creates a file with a given content
- * @param {String} name
- * @param {String} pathToFile
- * @param {String} content
+ * @param {string} name
+ * @param {string} pathToFile
+ * @param {string} content
  */
 exports.createFile = (name, pathToFile, content) => {
     pathToFile = path.resolve(cwd(), pathToFile);
@@ -311,8 +290,8 @@ exports.createFile = (name, pathToFile, content) => {
 
 /**
  * Creates a folder in the project folder
- * @param {String} name
- * @param {String} pathToFolder
+ * @param {string} name
+ * @param {string} pathToFolder
  */
 exports.createFolder = (name, pathToFolder) => {
     fs.mkdirSync(`${pathToFolder}/${name}`, { recursive: true });
@@ -320,27 +299,18 @@ exports.createFolder = (name, pathToFolder) => {
 
 /**
  * Copies files or folders
- * @param {String} src
- * @param {String} dest
+ * @param {string} src
+ * @param {string} dest
  * @returns {Promise}
  */
 exports.copyData = (src, dest) => {
-    return new Promise((resolve, reject) => {
-        ncp(src, dest, (err) => {
-            if (err) {
-                reject(err);
-                return;
-            }
-
-            resolve();
-        });
-    });
+    return fs.copy(src, dest);
 };
 
 /**
  * Gets the style file extension based on the preprocessor
- * @param {String} preprocessor
- * @returns {String}
+ * @param {string} preprocessor
+ * @returns {string}
  */
 exports.getStyleExtension = (preprocessor) => {
     switch (preprocessor) {

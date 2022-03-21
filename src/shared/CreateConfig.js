@@ -17,7 +17,7 @@ class CreateConfig {
     }
 
     async externalConfigSetup() {
-        const configValid = await utils.checkValidConfig(this.externalConfigPath); //Checking if it's a valid config
+        const configValid = utils.isValidConfig(this.externalConfigPath); //Checking if it's a valid config
         if (!configValid) return;
 
         configValid.name = this.config.name; //Change the name of the config to match the project we are creating
@@ -25,7 +25,7 @@ class CreateConfig {
 
         if (!this.config.cohtmlUse) return this.saveConfig();
 
-        const isPackagePathCorrect = utils.checkPathCorrect(this.config.packagePath); //We need to check if the Gameface/Prysm package is correct in the provided config
+        const isPackagePathCorrect = utils.isPathCorrect(this.config.packagePath); //We need to check if the Gameface/Prysm package is correct in the provided config
 
         if (!isPackagePathCorrect) this.config.packagePath = await prompt.askPath();
 

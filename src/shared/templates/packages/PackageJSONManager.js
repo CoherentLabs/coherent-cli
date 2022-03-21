@@ -25,22 +25,25 @@ class PackageJSONManager {
         this.package.devDependencies[packages.webpack.name] = `^${packages.webpack.version}`;
         this.package.devDependencies[packages.webpackCLI.name] = `^${packages.webpackCLI.version}`;
 
-        if (this.config.typescript)
-            packages.typescript.forEach((p) => {
-                this.package.devDependencies[p.name] = `^${p.version}`;
+        if (this.config.typescript) {
+            packages.typescript.forEach((dependency) => {
+                this.package.devDependencies[dependency.name] = `^${dependency.version}`;
             });
+        }
 
         if (this.config.preProcessor) {
             if (this.config.type !== 'react') this.package.devDependencies[packages.fileLoader.name] = `^${packages.fileLoader.version}`;
 
-            packages.preprocessors[getStyleExtension(this.config.preProcessor)].forEach((p) => {
-                this.package.devDependencies[p.name] = `^${p.version}`;
+            const preprocessorPackages = packages.preprocessors[getStyleExtension(this.config.preProcessor)];
+
+            preprocessorPackages.forEach((dependency) => {
+                this.package.devDependencies[dependency.name] = `^${dependency.version}`;
             });
         }
 
         if (this.config.components?.length > 0) {
-            this.config.components.forEach((p) => {
-                this.package.dependencies[p] = `^1.0.0`;
+            this.config.components.forEach((dependency) => {
+                this.package.dependencies[dependency] = `^1.0.0`;
             });
         }
 
@@ -52,16 +55,16 @@ class PackageJSONManager {
 
             this.package.devDependencies[packages.fileLoader.name] = `^${packages.fileLoader.version}`;
 
-            packages.react.forEach((p) => {
-                this.package.dependencies[p.name] = `^${p.version}`;
+            packages.react.forEach((dependency) => {
+                this.package.dependencies[dependency.name] = `^${dependency.version}`;
             });
 
-            packages.reactDev.forEach((p) => {
-                this.package.devDependencies[p.name] = `^${p.version}`;
+            packages.reactDev.forEach((dependency) => {
+                this.package.devDependencies[dependency.name] = `^${dependency.version}`;
             });
 
-            packages.babel.forEach((p) => {
-                this.package.devDependencies[p.name] = `^${p.version}`;
+            packages.babel.forEach((dependency) => {
+                this.package.devDependencies[dependency.name] = `^${dependency.version}`;
             });
         }
 
@@ -70,8 +73,8 @@ class PackageJSONManager {
         }
 
         if (this.config.store) {
-            packages.store.forEach((p) => {
-                this.package.dependencies[p.name] = `^${p.version}`;
+            packages.store.forEach((dependency) => {
+                this.package.dependencies[dependency.name] = `^${dependency.version}`;
             });
         }
 

@@ -54,7 +54,7 @@ exports.askPath = async () => {
         {
             name: 'resolved',
             type: 'path',
-            validate: utils.checkPathCorrect,
+            validate: utils.isPathCorrect,
             message: 'Add the path to your Gameface/Prysm package',
             directoryOnly: true
         }

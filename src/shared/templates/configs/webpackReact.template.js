@@ -1,4 +1,36 @@
-module.exports = `
+const ejs = require('ejs');
+
+module.exports = ({ preprocessor }) => {
+    const preprocessorRegex = () => {
+        switch (preprocessor) {
+            case 'scss':
+                return 's[ac]ss';
+            case 'less':
+                return 'less';
+            case 'styl':
+                return 'styl';
+            default:
+                return 'css';
+        }
+    };
+
+    const preprocessorLoader = () => {
+        switch (preprocessor) {
+            case 'scss':
+                return ', "sass-loader"';
+            case 'less':
+                return ', "less-loader"';
+            case 'styl':
+                return ', "stylus-loader"';
+            default:
+                return '';
+        }
+    };
+
+    return ejs.render(template, { preprocessorLoader: preprocessorLoader(), preprocessorRegex: preprocessorRegex() });
+};
+
+const template = `
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
@@ -27,8 +59,8 @@ const config = (env) => {
                     options: { presets: ['@babel/env'] }
                 },
                 {
-                    test: /\.<%= preprocessor === 'scss' ? 's[ac]ss' : preprocessor === 'less' ? 'less' : preprocessor === 'styl' ? 'styl' : 'css' %>$/,
-                    loader: [MiniCSSExctractPlugin.loader, 'css-loader' <%- preprocessor === 'scss' ? ", 'sass-loader'" : preprocessor === 'less' ? ", 'less-loader'" : preprocessor === 'styl' ? ", 'stylus-loader'" : '' %>]
+                    test: /\.<%= preprocessorRegex %>$/,
+                    loader: [MiniCSSExctractPlugin.loader, 'css-loader' <%- preprocessorLoader %>]
                 },
                 {
                     test: /\.html$/,
@@ -58,12 +90,6 @@ const config = (env) => {
                 template: './src/index.html',
                 filename: './index.html'
             }),
-            new CopyWebpackPlugin([
-                {
-                    from: './assets',
-                    to: './assets'
-                }
-            ]),
             new MiniCSSExctractPlugin()
         ],
         devServer: !isProd
