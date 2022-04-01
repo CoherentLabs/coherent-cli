@@ -7,7 +7,7 @@ const { cwd } = require('process');
 const { CONFIG_NAME, CONFIG_EXTENSION } = require('../shared/config');
 const prompt = require('../shared/prompt');
 
-const { readConfig, checkValidConfig, getPlayerAndCohtml, saveConfigToFolder, checkNodeVersion } = require('../shared/utils');
+const { isValidConfig, getPlayerAndCohtml, saveConfigToFolder, isNodeVersionSupported } = require('../shared/utils');
 
 class PlayerCommand extends Command {
     static args = [
@@ -21,7 +21,7 @@ class PlayerCommand extends Command {
     async run() {
         const { flags, args } = this.parse(PlayerCommand);
 
-        if (!checkNodeVersion()) return;
+        if (!isNodeVersionSupported()) return;
 
         if (!args.filePath && !flags.update && !flags.config) {
             console.log(
@@ -30,50 +30,50 @@ class PlayerCommand extends Command {
             return;
         }
         const configPath = flags.config || `./${CONFIG_NAME}${CONFIG_EXTENSION}`;
-        const configValid = await checkValidConfig(configPath); //Checking if it's a valid config
+        const configValid = await isValidConfig(configPath); //Checking if it's a valid config
 
-        if (configValid?.packagePath) {
-            if (flags.update) {
-                configValid.packagePath = await prompt.askPath();
-                saveConfigToFolder('', configValid);
-                if (!args.filePath) return;
-            }
-
-            let file = {
-                type: '',
-                path: ''
-            };
-
-            try {
-                new URL(args.filePath);
-                file = {
-                    type: 'url',
-                    path: args.filePath
-                };
-            } catch (error) {
-                file = {
-                    type: 'file',
-                    path: path.join(cwd(), args.filePath).replaceAll(`\\`, '/')
-                };
-            }
-
-            if (file.type === 'file') {
-                if (!fs.existsSync(file.path)) this.error('You need to pass a valid file or URL (with the http:// protocol)');
-
-                if (!fs.lstatSync(file.path).isFile()) this.error('You need to pass a file not directory');
-
-                if (path.extname(file.path) !== '.html') this.error('You need to pass a html file to the Player');
-            }
-
-            const { player: playerPath } = await getPlayerAndCohtml(configValid.packagePath);
-
-            execFile(playerPath, ['--player', `--url=${file.path}`, '--root'], (err) => {
-                if (err) throw new Error(err);
-            });
+        if (!configValid?.packagePath) {
+            console.log(chalk.redBright('The coh-config.json file is not created for a Gameface/Prysm project'));
             return;
         }
 
-        console.log(chalk.redBright('The coh-config.json file is not created for a Gameface/Prysm project'));
+        if (flags.update) {
+            if (!args.filePath) return;
+            configValid.packagePath = await prompt.askPath();
+            saveConfigToFolder('', configValid);
+        }
+
+        let file = {
+            type: '',
+            path: ''
+        };
+
+        try {
+            new URL(args.filePath);
+            file = {
+                type: 'url',
+                path: args.filePath
+            };
+        } catch (error) {
+            file = {
+                type: 'file',
+                path: path.join(cwd(), args.filePath).replaceAll(`\\`, '/')
+            };
+        }
+
+        if (file.type === 'file') {
+            if (!fs.existsSync(file.path)) this.error('You need to pass a valid file or URL (with the http:// protocol)');
+
+            if (!fs.lstatSync(file.path).isFile()) this.error('You need to pass a file not directory');
+
+            if (path.extname(file.path) !== '.html') this.error('You need to pass a html file to the Player');
+        }
+
+        const { player: playerPath } = await getPlayerAndCohtml(configValid.packagePath);
+
+        execFile(playerPath, ['--player', `--url=${file.path}`, '--root'], (err) => {
+            if (err) throw new Error(err);
+        });
     }
 }
 

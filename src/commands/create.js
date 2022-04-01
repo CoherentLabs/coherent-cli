@@ -3,7 +3,7 @@ const chalk = require('chalk');
 const config = require('../shared/config');
 const CreateConfig = require('../shared/CreateConfig');
 const Creator = require('../shared/Creator');
-const { checkFolderOverride, isProjectNameValid, convertToKebabCase, folderExists, checkNodeVersion } = require('../shared/utils');
+const { checkFolderOverride, isProjectNameValid, convertToKebabCase, folderExists, isNodeVersionSupported } = require('../shared/utils');
 const boxen = require('boxen');
 
 class CreateCommand extends Command {
@@ -17,7 +17,7 @@ class CreateCommand extends Command {
 
     async run() {
         const { flags, args } = this.parse(CreateCommand);
-        if (!checkNodeVersion()) return;
+        if (!isNodeVersionSupported()) return;
         
         let name = args.name;
         if (isProjectNameValid(name)) {

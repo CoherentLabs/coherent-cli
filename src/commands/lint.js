@@ -4,7 +4,7 @@ const Linter = require('../shared/Linter');
 const { extname } = require('path');
 const { existsSync } = require('fs-extra');
 const chalk = require('chalk');
-const { checkNodeVersion } = require('../shared/utils');
+const { isNodeVersionSupported } = require('../shared/utils');
 
 class LintCommand extends Command {
     static args = [
@@ -19,9 +19,9 @@ class LintCommand extends Command {
     async run() {
         const { flags, args } = this.parse(LintCommand);
 
-        if (!checkNodeVersion()) return;
+        if (!isNodeVersionSupported()) return;
 
-        const linter = new Linter(args.type, flags.config);
+        const linter = new Linter(args.type);
 
         if (flags.fileName && !existsSync(flags.fileName)) {
             console.log(chalk.redBright("The file you have provided doesn't exist"));

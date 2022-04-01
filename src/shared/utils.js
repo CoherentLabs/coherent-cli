@@ -198,7 +198,7 @@ exports.getCoherentPackages = () => {
             .then((res) => res.json())
             .then((data) => {
                 const components = data.results
-                    .filter(({ package }) => package.author.name === 'CoherentLabs')
+                    .filter(({ package }) => package?.author?.name === 'CoherentLabs')
                     .reduce((acc, el) => {
                         if (el.package?.keywords?.includes('Component')) {
                             acc.push({ name: el.package.name });

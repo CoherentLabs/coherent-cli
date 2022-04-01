@@ -1,4 +1,4 @@
-const { checkValidConfig, checkPathCorrect } = require('./utils');
+const { isValidConfig, isPathCorrect } = require('./utils');
 const fs = require('fs-extra');
 const { cwd } = require('process');
 const chalk = require('chalk');
@@ -30,9 +30,9 @@ class Linter {
     }
 
     async init() {
-        this.config = await checkValidConfig('./coh-config.json'); //Checking if it's a valid config or if it exists in the folder
+        this.config = await isValidConfig('./coh-config.json'); //Checking if it's a valid config or if it exists in the folder
         if (this.config?.packagePath) {
-            this.isPackagePathCorrect = checkPathCorrect(this.config.packagePath); //We need to check if the Gameface/Prysm package is correct in the config
+            this.isPackagePathCorrect = isPathCorrect(this.config.packagePath); //We need to check if the Gameface/Prysm package is correct in the config
 
             if (this.isPackagePathCorrect) {
                 if (this.type === 'html') this.initHTML();
