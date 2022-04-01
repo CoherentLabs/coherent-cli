@@ -92,7 +92,7 @@ exports.folderExists = (name) => {
  * @returns {boolean}
  */
 exports.checkFolderOverride = async (name) => {
-    if (isDirEmpty) return true;
+    if (isDirEmpty(`./${name}`)) return true;
 
     console.log(chalk.yellow(`A folder called ${name} already exists and contains files`));
 

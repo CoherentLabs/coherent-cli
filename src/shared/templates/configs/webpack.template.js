@@ -12,15 +12,13 @@ module.exports = ({ preprocessor, typescript }) => {
     const typescriptExtension = typescript ? '.ts,' : '';
 
     const typescriptRule = () => {
-        if (typescript) {
-            return `{
+        if (!typescript) return '';
+
+        return `{
                test: /\.tsx?/,
                use: 'ts-loader',
                 exclude: /node_modules/,
             },`;
-        }
-
-        return '';
     };
 
     const preprocessorRules = () => {

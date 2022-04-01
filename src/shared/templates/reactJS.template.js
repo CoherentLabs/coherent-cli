@@ -3,7 +3,7 @@ const ejs = require('ejs');
 module.exports = ({ router, store, cohtmlInclude, preprocessor }) => {
     const routerImport = router ? "import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';" : '';
 
-    const storeImports = store ? "import { Provider } from 'react-redux';import store from './store';" : '';
+    const storeImports = store ? "import { Provider } from 'react-redux';\nimport store from './store';" : '';
 
     const cohtmlImport = cohtmlInclude ? "import * as engine from './cohtml.js';" : '';
 
