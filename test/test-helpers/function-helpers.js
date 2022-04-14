@@ -2,7 +2,7 @@ const { spawn } = require('child_process');
 const { cwd } = require('process');
 const path = require('path');
 const concat = require('concat-stream');
-const { COMMAND_PATH } = require('./config');
+const { COMMAND_PATH, PACKAGE_PATH } = require('./config');
 const chalk = require('chalk');
 
 function createCohCliProcess(
@@ -71,3 +71,15 @@ exports.executeWithInput = (command, args = [], inputs = [], opts = {}) => {
     });
     return promise;
 };
+
+exports.createCohConfig = async (cwd) => {
+    await fs.writeFile(
+        `${cwd}/coh-config.json`,
+        JSON.stringify({
+            name: '',
+            type: '',
+            cohtmlUse: true,
+            packagePath: PACKAGE_PATH
+        })
+    );
+}

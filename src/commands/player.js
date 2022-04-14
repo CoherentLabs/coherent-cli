@@ -14,8 +14,8 @@ class PlayerCommand extends Command {
         {
             name: 'filePath',
             required: false,
-            description: 'the file or url you want to open in the Player'
-        }
+            description: 'the file or url you want to open in the Player',
+        },
     ];
 
     async run() {
@@ -45,35 +45,36 @@ class PlayerCommand extends Command {
 
         let file = {
             type: '',
-            path: ''
+            path: '',
         };
 
         try {
             new URL(args.filePath);
             file = {
                 type: 'url',
-                path: args.filePath
+                path: args.filePath,
             };
         } catch (error) {
             file = {
                 type: 'file',
-                path: path.join(cwd(), args.filePath).replaceAll(`\\`, '/')
+                path: path.join(cwd(), args.filePath).replaceAll(`\\`, '/'),
             };
         }
 
-        if (file.type === 'file') {
-            if (!fs.existsSync(file.path)) this.error('You need to pass a valid file or URL (with the http:// protocol)');
-
-            if (!fs.lstatSync(file.path).isFile()) this.error('You need to pass a file not directory');
-
-            if (path.extname(file.path) !== '.html') this.error('You need to pass a html file to the Player');
-        }
+        if (file.type === 'file') this.validateFile(file.path);
 
         const { player: playerPath } = await getPlayerAndCohtml(configValid.packagePath);
 
         execFile(playerPath, ['--player', `--url=${file.path}`, '--root'], (err) => {
             if (err) throw new Error(err);
         });
+    }
+    validateFile(filePath) {
+        if (!fs.existsSync(filePath)) this.error('You need to pass a valid file or URL (with the http:// protocol)');
+
+        if (!fs.lstatSync(filePath).isFile()) this.error('You need to pass a file not directory');
+
+        if (path.extname(filePath) !== '.html') this.error('You need to pass a html file to the Player');
     }
 }
 
@@ -83,12 +84,12 @@ PlayerCommand.description = `Opens a file or URL with the Player app
 
 PlayerCommand.flags = {
     config: flags.string({
-        description: 'set path to config'
+        description: 'set path to config',
     }),
     update: flags.boolean({
         description: 'update the package path in the config',
-        exclusive: ['config']
-    })
+        exclusive: ['config'],
+    }),
 };
 
 module.exports = PlayerCommand;

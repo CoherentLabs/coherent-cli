@@ -2,7 +2,8 @@ const { expect } = require('chai');
 const { execSync } = require('child_process');
 const fs = require('fs-extra');
 const path = require('path');
-const { COMMAND_PATH, COMMANDS, PACKAGE_PATH } = require('../test-helpers/config');
+const { COMMAND_PATH, COMMANDS } = require('../test-helpers/config');
+const { createCohConfig } = require('../test-helpers/function-helpers');
 
 const commandPath = path.resolve(__dirname, COMMAND_PATH);
 
@@ -10,15 +11,7 @@ const cwd = path.resolve(__dirname, '../test-helpers/lint/');
 
 describe('lint', () => {
     before(async () => {
-        await fs.writeFile(
-            `${cwd}/coh-config.json`,
-            JSON.stringify({
-                name: '',
-                type: '',
-                cohtmlUse: true,
-                packagePath: PACKAGE_PATH
-            })
-        );
+        await createCohConfig(cwd);
     });
 
     it('lints html with custom rules', () => {

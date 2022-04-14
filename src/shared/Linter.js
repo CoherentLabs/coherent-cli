@@ -11,34 +11,30 @@ const { CLIError } = require('@oclif/errors');
 class Linter {
     constructor(type) {
         this.type = type;
+        this.IGNORED = ['node_modules/**/*.html', 'scripts/**/*.html', '.cohtmllintrc', 'package-lock.json', 'package.json', 'rules/**/*.html', 'tests/**/*.html'];
     }
 
     lint(file) {
-        if (this.isPackagePathCorrect) {
-            //Failsafe if lint runs before init or init hasn't thrown an error but there is no config
-            switch (this.type) {
-                case 'css':
-                    this.lintCSS(file);
-                    break;
-                case 'html':
-                    this.lintHTML(file);
-                    break;
-                default:
-                    break;
-            }
+        if (!this.isPackagePathCorrect) return; //Failsafe if lint runs before init or init hasn't thrown an error but there is no config
+
+        switch (this.type) {
+            case 'css':
+                return this.lintCSS(file);
+            case 'html':
+                return this.lintHTML(file);
         }
     }
 
     async init() {
         this.config = await isValidConfig('./coh-config.json'); //Checking if it's a valid config or if it exists in the folder
-        if (this.config?.packagePath) {
-            this.isPackagePathCorrect = isPathCorrect(this.config.packagePath); //We need to check if the Gameface/Prysm package is correct in the config
+        if (!this.config?.packagePath) return;
 
-            if (this.isPackagePathCorrect) {
-                if (this.type === 'html') this.initHTML();
-                else await this.initCSS();
-            }
-        }
+        this.isPackagePathCorrect = isPathCorrect(this.config.packagePath); //We need to check if the Gameface/Prysm package is correct in the config
+
+        if (!this.isPackagePathCorrect) return;
+
+        if (this.type === 'html') this.initHTML();
+        else await this.initCSS();
     }
 
     /**
@@ -50,7 +46,7 @@ class Linter {
         if (!exists) {
             try {
                 execa.sync('npm', ['i'], {
-                    cwd: `${this.config.packagePath}/Samples/uiresources/library/CSSLint/`
+                    cwd: `${this.config.packagePath}/Samples/uiresources/library/CSSLint/`,
                 });
             } catch (error) {
                 throw new Error(error);
@@ -79,7 +75,7 @@ class Linter {
 
             return rulesOption.join(',');
         };
-        this.IGNORED = ['node_modules/**/*.html', 'scripts/**/*.html', '.cohtmllintrc', 'package-lock.json', 'package.json', 'rules/**/*.html', 'tests/**/*.html'];
+
         this.configObject = fs.readFileSync(`${this.config.packagePath}/Samples/uiresources/library/HTMLLint/.cohtmllintrc`);
 
         try {
@@ -98,7 +94,7 @@ class Linter {
         const configDir = path.relative(cwd(), `${this.config.packagePath}/Samples/uiresources/library/CSSLint/.stylelintrc.json`).replaceAll('/', '\\');
         try {
             const result = execSync(`npx stylelint "${file}" --config "${configDir}"`, {
-                encoding: 'utf8'
+                encoding: 'utf8',
             });
             console.log(chalk.greenBright(result));
         } catch (error) {
@@ -110,7 +106,7 @@ class Linter {
         const rulesDir = `${this.config.packagePath}/Samples/uiresources/library/HTMLLint/rules/`.replaceAll('\\', '/');
         try {
             const result = execSync(`npx htmlhint ${file} --ignore ${this.IGNORED.join(',')} --rulesdir ${rulesDir} --rules ${this.htmlRules}${this.cohtmlRules}`, {
-                encoding: 'utf8'
+                encoding: 'utf8',
             });
             console.log(chalk.greenBright(result));
         } catch (error) {
@@ -122,7 +118,7 @@ class Linter {
         if (this.isPackagePathCorrect) {
             const watcher = chokidar.watch(cwd(), {
                 ignored: /(^|[\/\\])\../, // ignore dotfiles
-                persistent: true
+                persistent: true,
             });
 
             watcher.on('change', (file) => {

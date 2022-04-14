@@ -12,17 +12,16 @@ const cwd = path.resolve(__dirname, '../test-helpers/create/test-create/');
 describe('create', function () {
     this.timeout(0);
 
-    // it('creates correct coh-config', async (done) => {
-    //     const name = 'test-project-1';
-    //     executeWithInput('create', [name], ['n'], { cwd })
-    //         .then((result) => {
-    //             expect(true).to.be.true;
-    //             done();
-    //         })
-    //         .catch(done);
-    // });
+    xit('creates correct coh-config', async (done) => {
+        const name = 'test-project-1';
+        executeWithInput('create', [name], ['n'], { cwd })
+            .then((result) => {
+                expect(true).to.be.true;
+                done();
+            })
+            .catch(done);
+    });
 
     after(async () => {
-        // await fs.emptyDir(cwd);
     });
 });

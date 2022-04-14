@@ -144,11 +144,11 @@ engine.on("Ready", () => {
 });
 ```
 
-Which you can then edit to add your model properties
+which you can then edit to add your model properties
 
 If you use the `create-mock-model` command with a different name, it will add the new model to the `model.js` file
 
-_Warning: If you are creating a new model after the first and have moved the model.js file to another location, a new model.js file will be created at the root of the project_
+_Warning: If you have moved the generated model file to another location, a new `model.js` file will be created when using the command._
 
 ## coherent-cli lint
 
