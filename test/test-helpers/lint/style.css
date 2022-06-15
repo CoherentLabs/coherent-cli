@@ -1,0 +1,5 @@
+.background {
+    background: center / contain no-repeat url('111.png'), #eee 35% url('222.png');
+    background: center / contain space url('111.png'), #eee 35% url('222.png');
+    background: center / contain no-repeat url('111.png'), hsl(0, 100%, 50%) 35% url('222.png');
+}

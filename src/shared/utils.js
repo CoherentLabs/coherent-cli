@@ -19,6 +19,8 @@ const execa = require('execa');
  * @returns {boolean | string}
  */
 exports.isPathCorrect = (path) => {
+    if (!fs.existsSync(path)) return chalk.redBright("The provided path doesn't exist");
+
     if (!fs.statSync(path).isDirectory()) return chalk.redBright('The provided path is not a directory');
 
     const spinner = ora('\nChecking directory...').start();
@@ -164,6 +166,18 @@ exports.convertToKebabCase = (str) => {
 };
 
 /**
+ * Converts strings to camel case to be used as model names
+ * @param {String} str
+ * @returns
+ */
+exports.convertToCamelCase = (str) => {
+    return str
+        .replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => {
+            return index !== 0 ? word.toUpperCase() : word; //Matches the first letter in any new word or if preceeded by dash (-)
+        })
+        .replace(/\s+/g, ''); //Remove whitespaces
+};
+/**
  * Checks if project name is kebab case
  * @param {string} name
  * @returns {boolean}
@@ -184,7 +198,7 @@ exports.getCoherentPackages = () => {
             .then((res) => res.json())
             .then((data) => {
                 const components = data.results
-                    .filter(({ package }) => package.author.name === 'CoherentLabs')
+                    .filter(({ package }) => package?.author?.name === 'CoherentLabs')
                     .reduce((acc, el) => {
                         if (el.package?.keywords?.includes('Component')) {
                             acc.push({ name: el.package.name });
@@ -196,6 +210,7 @@ exports.getCoherentPackages = () => {
             })
             .then((components) => {
                 spinner.stop();
+                spinner.clear();
                 resolve(components);
             });
     });
@@ -268,6 +283,21 @@ exports.taskGenerator = (title, task, enabled = () => true) => ({
  */
 exports.readConfig = (name) => {
     return fs.readFileSync(`./${name}/${CONFIG_NAME}${CONFIG_EXTENSION}`);
+};
+
+/**
+ * Checks if there is a model.js file and returns it if it exists
+ * @returns {Promise}
+ */
+exports.readModelFile = () => {
+    return new Promise((resolve) => {
+        try {
+            const result = fs.readFileSync('./model.js').toString();
+            resolve(result);
+        } catch (error) {
+            resolve(false);
+        }
+    });
 };
 /**
  * Creates a file with a given content
