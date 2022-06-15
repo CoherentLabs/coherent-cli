@@ -1,7 +1,7 @@
 {
   "name": "coherent-cli",
   "description": "A command line interface for developing Coherent Gameface and Prysm projects",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "author": "@CoherentLabs",
   "bin": {
     "coherent-cli": "./bin/run"
