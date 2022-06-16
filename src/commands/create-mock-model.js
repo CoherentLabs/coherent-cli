@@ -28,7 +28,7 @@ class CreateMockModelCommand extends Command {
 
             const modelFile = await readModelFile();
 
-            if (!modelFile) return;
+            if (!modelFile) return createFile(`model.js`, '.', fileData);
 
             if (modelFile.match(`engine.createJSModel\\("${modelName}"`)) return console.log(`There is already model called ${args.modelName}. Select another name`);
 

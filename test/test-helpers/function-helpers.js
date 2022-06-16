@@ -3,13 +3,13 @@ const { cwd } = require('process');
 const path = require('path');
 const concat = require('concat-stream');
 const { COMMAND_PATH, PACKAGE_PATH } = require('./config');
-const chalk = require('chalk');
+const fs = require('fs-extra');
 
 function createCohCliProcess(
     processPath,
     args = [],
     opt = {
-        cwd: cwd()
+        cwd: cwd(),
     }
 ) {
     args = [processPath].concat(args);
@@ -79,7 +79,7 @@ exports.createCohConfig = async (cwd) => {
             name: '',
             type: '',
             cohtmlUse: true,
-            packagePath: PACKAGE_PATH
+            packagePath: PACKAGE_PATH,
         })
     );
-}
+};

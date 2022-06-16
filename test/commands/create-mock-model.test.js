@@ -12,7 +12,11 @@ describe('create-mock-model', () => {
     const model1 = 'MockModel';
 
     it('creates model.js file', () => {
-        execSync(`${commandPath} ${COMMANDS.CREATE_MOCK_MODEL} ${model1}`, { cwd });
+        try {
+            execSync(`${commandPath} ${COMMANDS.CREATE_MOCK_MODEL} ${model1}`, { cwd });
+        } catch (error) {
+            throw new Error(error);
+        }
         const fileExists = fs.existsSync(`${cwd}/model.js`);
         expect(fileExists).to.be.true;
     });
