@@ -1,5 +1,5 @@
 const { askPath } = require('../src/shared/prompt');
-const { checkPathCorrect } = require('../src/shared/utils');
+const { isPathCorrect } = require('../src/shared/utils');
 const { packagePath } = require('./test-helpers/package.config.json');
 
 const fs = require('fs-extra');
@@ -8,11 +8,9 @@ const chalk = require('chalk');
 
 (async () => {
     if (packagePath.length > 0) {
-        const checkPath = await checkPathCorrect(packagePath);
+        const checkPath = isPathCorrect(packagePath);
 
-        if (checkPath === true) {
-            return;
-        }
+        if (checkPath === true) return;
     }
 
     console.log(chalk.redBright('The provided directory in the config is either empty or incorrect'));

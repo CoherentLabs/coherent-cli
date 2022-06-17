@@ -1,10 +1,10 @@
 {
   "name": "coherent-cli",
   "description": "A command line interface for developing Coherent Gameface and Prysm projects",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "author": "@CoherentLabs",
   "bin": {
-    "coherent-cli": "./bin/run"
+    "coherent-cli": "./index.js"
   },
   "bugs": "https://github.com/orgs/CoherentLabs/coherent-cli/issues",
   "dependencies": {
@@ -44,13 +44,14 @@
     "rimraf": "^3.0.2"
   },
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=14.0.0"
   },
   "files": [
     "/bin",
     "/npm-shrinkwrap.json",
     "/oclif.manifest.json",
-    "/src"
+    "/src",
+    "/index.js"
   ],
   "homepage": "https://github.com/orgs/CoherentLabs/coherent-cli",
   "license": "ISC",
@@ -66,7 +67,8 @@
   "scripts": {
     "postpack": "rimraf oclif.manifest.json",
     "prepack": "oclif-dev manifest && oclif-dev readme",
-    "test": "node ./test/checkPath.js && nyc -s mocha --forbid-only \"test/**/**.test.js\" --timeout 20000",
-    "version": "oclif-dev readme && git add README.md"
+    "test": "node ./test/checkPath.js && nyc -s mocha --forbid-only \"test/**/*.test.js\" --timeout 20000",
+    "version": "oclif-dev readme && git add README.md",
+    "publish": "node ./scripts/publish.js"
   }
 }

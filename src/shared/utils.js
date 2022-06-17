@@ -37,7 +37,7 @@ exports.isPathCorrect = (path) => {
  * @returns {Object}
  */
 exports.getPlayerAndCohtml = (path) => {
-    const cohtml = glob.sync(`${path}/**/uiresources/library/cohtml.js`)[0];
+    const cohtml = glob.sync(`${path}/**/library/cohtml.js`)[0];
     const player = glob.sync(`${path}/**/Player.exe`)[0];
 
     return { player, cohtml };
@@ -254,12 +254,12 @@ exports.installPackages = (pkgMgr, targetDirectory) => {
         task: () => {
             try {
                 execa.sync(pkgMgr, ['i'], {
-                    cwd: targetDirectory
+                    cwd: targetDirectory,
                 });
             } catch (error) {
                 throw new Error(error);
             }
-        }
+        },
     };
 };
 
@@ -273,7 +273,7 @@ exports.installPackages = (pkgMgr, targetDirectory) => {
 exports.taskGenerator = (title, task, enabled = () => true) => ({
     title,
     enabled,
-    task
+    task,
 });
 
 /**

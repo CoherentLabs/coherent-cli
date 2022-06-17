@@ -3,7 +3,7 @@ const { DOCUMENT_NAMES } = require('./config');
 const ejs = require('ejs');
 
 const PackageJSONManager = require('./templates/packages/PackageJSONManager');
-const { getStyleExtension, createFile, createFolder, taskGenerator, copyData } = require('./utils');
+const { getStyleExtension, createFile, createFolder, taskGenerator, copyData, getPlayerAndCohtml } = require('./utils');
 
 class TaskList {
     constructor(config) {
@@ -89,7 +89,8 @@ class TaskList {
     }
 
     copyCohtml() {
-        return () => copyData(`${this.config.packagePath}/Samples/uiresources/library/cohtml.js`, `./${this.config.name}/cohtml.js`);
+        const { cohtml } = getPlayerAndCohtml(this.config.packagePath);
+        return () => copyData(cohtml, `./${this.config.name}/cohtml.js`);
     }
 
     createNoFramework() {
