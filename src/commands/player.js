@@ -67,7 +67,9 @@ class PlayerCommand extends Command {
 
         if (file.type === 'file') this.validateFile(file.path);
 
-        isMac ? this.handleMac(configValid.packagePath, file.path) : this.handleWin(configValid.packagePath, file.path);
+        if (isMac) return this.handleMac(configValid.packagePath, file.path);
+
+        this.handleWin(configValid.packagePath, file.path);
     }
     validateFile(filePath) {
         if (!fs.existsSync(filePath)) this.error('You need to pass a valid file or URL (with the http:// protocol)');
