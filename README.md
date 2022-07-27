@@ -192,8 +192,7 @@ coherent-cli lint css --fileName ./style.css
 
 Opens the [Player.exe](https://coherent-labs.com/Documentation/cpp-gameface/d8/db6/player.html) with a file or URL
 
-**_Note: This command requires a valid coh-config.json with a correct path to a Gameface/Prysm package.
-This command works only on Windows at the moment_**
+**_Note: This command requires a valid coh-config.json with a correct path to a Gameface/Prysm package._**
 
 ### Usage
 
